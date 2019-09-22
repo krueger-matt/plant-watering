@@ -10,15 +10,10 @@ Create (or modify the one provided) a SQLite database to keep track of your plan
 The fields in the database are:
 
   id integer primary key,
-  
   plant_name varchar(765),
-  
   schedule_in_days integer,
-  
   last_watered timestamp,
-  
   days_since_last_water integer,
-  
   need_water smallint
 
 Setup a schedule for for maintenance.py to run in the early mornings, send_text.py to run anytime after maintenance.py, and read_email.py to run hourly (or more)
