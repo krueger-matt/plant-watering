@@ -68,12 +68,12 @@ def check_status():
 
                     # Download attachments
                     for part in msg.walk():
-						if part.get_content_maintype() == 'multipart':
-							continue
-						if part.get('Content-Disposition') is None:
-							continue
-						fileName = part.get_filename()
-					# Read file
+                        if part.get_content_maintype() == 'multipart':
+                            continue
+                        if part.get('Content-Disposition') is None:
+                            continue
+                        fileName = part.get_filename()
+                    # Read file
                     if bool(fileName):
                     	filePath = os.path.join(detach_dir, 'attachments', fileName)
                     	if not os.path.isfile(filePath):
