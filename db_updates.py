@@ -26,23 +26,10 @@ conn.commit()
 
 conn.commit()
 
-# cursor = conn.execute("SELECT * FROM watering_schedule")
-
-cursor = conn.execute("SELECT plant_name, schedule_in_days - days_since_last_water FROM watering_schedule")
-
-# for row in cursor:
-# 	status = str(row[0]) + ' ' + str(row[1]) + ' days'
-# 	print status
-
-output = {}
+cursor = conn.execute("SELECT * FROM watering_schedule")
 
 for row in cursor:
-	# print row	
-	output[str(row[0])] = row[1]
-
-status = 'Nathona'
-
-print "Water " + status + " in " + str(output.get(status)) + " days"
+	print row	
 
 # print output
 
