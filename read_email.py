@@ -73,8 +73,8 @@ def read_email_from_gmail():
                             fileName = part.get_filename()
                         # Read file
                         if bool(fileName):
-                        	filePath = os.path.join(detach_dir, 'attachments', fileName)
-                        	if not os.path.isfile(filePath):
+                            filePath = os.path.join(detach_dir, 'attachments', fileName)
+                            if not os.path.isfile(filePath):
                                 fp = open(filePath, 'wb')
                                 fp.write(part.get_payload(decode=True))
                                 fp.close()
