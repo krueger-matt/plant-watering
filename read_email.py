@@ -66,82 +66,82 @@ def read_email_from_gmail():
 
                         # Download attachments
                         for part in msg.walk():
-    						if part.get_content_maintype() == 'multipart':
-    							continue
-    						if part.get('Content-Disposition') is None:
-    							continue
-    						fileName = part.get_filename()
-    					# Read file
+                            if part.get_content_maintype() == 'multipart':
+                                continue
+                            if part.get('Content-Disposition') is None:
+                                continue
+                            fileName = part.get_filename()
+                        # Read file
                         if bool(fileName):
                         	filePath = os.path.join(detach_dir, 'attachments', fileName)
                         	if not os.path.isfile(filePath):
-                        		fp = open(filePath, 'wb')
-                        		fp.write(part.get_payload(decode=True))
-                        		fp.close()
-                        		fp = open(filePath, 'r')
-                        		text = fp.read()
+                                fp = open(filePath, 'wb')
+                                fp.write(part.get_payload(decode=True))
+                                fp.close()
+                                fp = open(filePath, 'r')
+                                text = fp.read()
 
-                        		# Delete attachments
-                        		os.remove(filePath)
+                                # Delete attachments
+                                os.remove(filePath)
 
-                                if text == row[0] + " watered":
-                                    conn.execute("update watering_schedule set last_watered = datetime('now'), days_since_last_water = 0, need_water = 0 where plant_name = '" + row[0] + "'")
-                                    conn.commit()
-                                    print row[0] + ' record updated'
+                            if text == row[0] + " watered":
+                                conn.execute("update watering_schedule set last_watered = datetime('now'), days_since_last_water = 0, need_water = 0 where plant_name = '" + row[0] + "'")
+                                conn.commit()
+                                print row[0] + ' record updated'
 
-                                    TO = [] # Phone number goes here as a string
-                                    SUBJECT = row[0] + ' watered'
-                                    email = SUBJECT
-                                    message = """\
-                                    From: %s
-                                    To: %s
-                                    Subject: %s
+                                TO = [] # Phone number goes here as a string
+                                SUBJECT = row[0] + ' watered'
+                                email = SUBJECT
+                                message = """\
+                                From: %s
+                                To: %s
+                                Subject: %s
 
-                                    %s
-                                    """ % (FROM_EMAIL, ", ".join(TO), SUBJECT, email)
-                                    server = smtplib.SMTP('smtp.gmail.com', 587)
-                                    server.ehlo()
-                                    server.starttls()
-                                    server.ehlo()
-                                    server.login(FROM_EMAIL, FROM_PWD)
-                                    server.sendmail(FROM_EMAIL, TO, message)
-                                    server.quit()
-                                    print 'Text sent'
-                                    # Get the mail ID to delete from id_list
-                                    id_to_delete = id_list[i-1]
-                                    # Delete the email
-                                    mail.store("1:{0}".format(id_to_delete), '+X-GM-LABELS', '\\Trash')
-                                    print 'Email deleted'
-                                elif text == "Status":
-                                    status_cursor = conn.execute("SELECT plant_name, schedule_in_days - days_since_last_water FROM watering_schedule")
-                                    
-                                    for status_row in status_cursor:
-                                        status = str(status_row[0]) + ' ' + str(status_row[1]) + ' days'
-                                        print status
+                                %s
+                                """ % (FROM_EMAIL, ", ".join(TO), SUBJECT, email)
+                                server = smtplib.SMTP('smtp.gmail.com', 587)
+                                server.ehlo()
+                                server.starttls()
+                                server.ehlo()
+                                server.login(FROM_EMAIL, FROM_PWD)
+                                server.sendmail(FROM_EMAIL, TO, message)
+                                server.quit()
+                                print 'Text sent'
+                                # Get the mail ID to delete from id_list
+                                id_to_delete = id_list[i-1]
+                                # Delete the email
+                                mail.store("1:{0}".format(id_to_delete), '+X-GM-LABELS', '\\Trash')
+                                print 'Email deleted'
+                            elif text == "Status":
+                                status_cursor = conn.execute("SELECT plant_name, schedule_in_days - days_since_last_water FROM watering_schedule")
+                                
+                                for status_row in status_cursor:
+                                    status = str(status_row[0]) + ' ' + str(status_row[1]) + ' days'
+                                    print status
 
-                                    TO = [] # Phone number goes here as a string
-                                    SUBJECT = status
-                                    email = SUBJECT
-                                    message = """\
-                                    From: %s
-                                    To: %s
-                                    Subject: %s
+                                TO = [] # Phone number goes here as a string
+                                SUBJECT = status
+                                email = SUBJECT
+                                message = """\
+                                From: %s
+                                To: %s
+                                Subject: %s
 
-                                    %s
-                                    """ % (FROM_EMAIL, ", ".join(TO), SUBJECT, email)
-                                    server = smtplib.SMTP('smtp.gmail.com', 587)
-                                    server.ehlo()
-                                    server.starttls()
-                                    server.ehlo()
-                                    server.login(FROM_EMAIL, FROM_PWD)
-                                    server.sendmail(FROM_EMAIL, TO, message)
-                                    server.quit()
-                                    print 'Text sent'
-                                    # Get the mail ID to delete from id_list
-                                    id_to_delete = id_list[i-1]
-                                    # Delete the email
-                                    mail.store("1:{0}".format(id_to_delete), '+X-GM-LABELS', '\\Trash')
-                                    print 'Email deleted'
+                                %s
+                                """ % (FROM_EMAIL, ", ".join(TO), SUBJECT, email)
+                                server = smtplib.SMTP('smtp.gmail.com', 587)
+                                server.ehlo()
+                                server.starttls()
+                                server.ehlo()
+                                server.login(FROM_EMAIL, FROM_PWD)
+                                server.sendmail(FROM_EMAIL, TO, message)
+                                server.quit()
+                                print 'Text sent'
+                                # Get the mail ID to delete from id_list
+                                id_to_delete = id_list[i-1]
+                                # Delete the email
+                                mail.store("1:{0}".format(id_to_delete), '+X-GM-LABELS', '\\Trash')
+                                print 'Email deleted'
 
 
 
