@@ -63,7 +63,7 @@ def read_email_from_gmail():
                         	email_subject = '(no subject)'
                         email_from = msg['from']
                         date = msg["Date"]
-]
+
                         # Download attachments
                         for part in msg.walk():
     						if part.get_content_maintype() == 'multipart':
@@ -91,6 +91,36 @@ def read_email_from_gmail():
 
                                     TO = [] # Phone number goes here as a string
                                     SUBJECT = row[0] + ' watered'
+                                    email = SUBJECT
+                                    message = """\
+                                    From: %s
+                                    To: %s
+                                    Subject: %s
+
+                                    %s
+                                    """ % (FROM_EMAIL, ", ".join(TO), SUBJECT, email)
+                                    server = smtplib.SMTP('smtp.gmail.com', 587)
+                                    server.ehlo()
+                                    server.starttls()
+                                    server.ehlo()
+                                    server.login(FROM_EMAIL, FROM_PWD)
+                                    server.sendmail(FROM_EMAIL, TO, message)
+                                    server.quit()
+                                    print 'Text sent'
+                                    # Get the mail ID to delete from id_list
+                                    id_to_delete = id_list[i-1]
+                                    # Delete the email
+                                    mail.store("1:{0}".format(id_to_delete), '+X-GM-LABELS', '\\Trash')
+                                    print 'Email deleted'
+                                elif text == "Status":
+                                    status_cursor = conn.execute("SELECT plant_name, schedule_in_days - days_since_last_water FROM watering_schedule")
+                                    
+                                    for status_row in status_cursor:
+                                        status = str(status_row[0]) + ' ' + str(status_row[1]) + ' days'
+                                        print status
+
+                                    TO = [] # Phone number goes here as a string
+                                    SUBJECT = status
                                     email = SUBJECT
                                     message = """\
                                     From: %s
