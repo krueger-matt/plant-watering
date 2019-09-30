@@ -9,6 +9,9 @@ import imaplib
 import email as emaily
 import os
 import sqlite3
+import datetime
+
+print datetime.datetime.now()
 
 FROM_EMAIL  = os.environ.get('FROM_EMAIL')  # Environment variable called FROM_EMAIL set to email address used
 FROM_PWD    = os.environ.get('FROM_PWD')    # Environment variable called FROM_PWD set to email password
