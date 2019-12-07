@@ -36,7 +36,7 @@ def read_email_from_gmail():
 
     row = []
     conn = sqlite3.connect('plants.db')
-    cursor = conn.execute("SELECT plant_name FROM watering_schedule where need_water = 1")
+    cursor = conn.execute("SELECT plant_name FROM watering_schedule WHERE need_water = 1 AND ignore = 0")
 
     try:
     	# Login to email
@@ -87,7 +87,8 @@ def read_email_from_gmail():
                                 # Delete attachments
                                 os.remove(filePath)
 
-                            if text == row[0] + " watered":
+                            # text.strip() to remove leading and especially trailing whitespace
+                            if text.strip() == row[0] + " watered":
                                 conn.execute("update watering_schedule set last_watered = datetime('now'), days_since_last_water = 0, need_water = 0 where plant_name = '" + row[0] + "'")
                                 conn.commit()
                                 print row[0] + ' record updated'

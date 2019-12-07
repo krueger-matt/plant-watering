@@ -6,8 +6,16 @@ conn = sqlite3.connect('plants.db')
 
 # Create new table with ID as an integer and primary key and Name as a varchar
 # This will auto-increment since ID is primary key
-conn.execute("create table if not exists watering_schedule (id integer primary key, plant_name varchar(765), schedule_in_days integer, last_watered timestamp, days_since_last_water integer, need_water smallint)")
-conn.commit()
+conn.execute("create table if not exists watering_schedule (id integer primary key, plant_name varchar(765), schedule_in_days integer, last_watered timestamp, days_since_last_water integer, need_water smallint, ignore smallint)")
+
+# Column definitions
+# id - table id
+# plant_name - name of plant
+# schedule_in_days - how often the plant needs to be watered
+# last_watered - datetime when plant was last watered
+# days_since_last_water - number of days since plant was last watered
+# need_water - boolean where 0 means plant does not need water and 1 means plant needs water
+# ignore - boolean where 1 means ignore this plant (dead or dormant)
 
 # Note that when we insert, we use the column name we want to insert into and the value. We can skip ID since it will auto-increment
 

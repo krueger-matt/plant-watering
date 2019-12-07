@@ -11,7 +11,7 @@ def maintenance():
     conn = sqlite3.connect('plants.db')
 
     # If days_since_last_water - schedule_in_days is > 0 then we need to update the need_water bool to 1
-    cursor = conn.execute("SELECT plant_name, days_since_last_water - schedule_in_days FROM watering_schedule")
+    cursor = conn.execute("SELECT plant_name, days_since_last_water - schedule_in_days FROM watering_schedule WHERE ignore = 0")
     for row in cursor:
         plant = row[0]
         day_diff = row[1]

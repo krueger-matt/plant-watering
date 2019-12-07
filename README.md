@@ -19,7 +19,9 @@ The fields in the database are:
   
   days_since_last_water integer,
   
-  need_water smallint
+  need_water smallint,
+
+  ignore smallint
 
 Setup a schedule for for maintenance.py to run in the early mornings, send_text.py to run anytime after maintenance.py, and read_email.py to run hourly (or more)
 

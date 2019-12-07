@@ -26,7 +26,7 @@ def send_text():
 
     # Checks which plants have a need_water flag set to 1 and then sends one text per plant that needs water
     conn = sqlite3.connect('plants.db')
-    cursor = conn.execute("SELECT plant_name FROM watering_schedule where need_water = 1")
+    cursor = conn.execute("SELECT plant_name FROM watering_schedule WHERE need_water = 1 AND ignore = 0")
     for row in cursor:
         TO = [] # Phone number goes here as a string
         SUBJECT = 'Water ' + row[0]
