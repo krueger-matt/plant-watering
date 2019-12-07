@@ -32,6 +32,9 @@ conn.execute("create table if not exists watering_schedule (id integer primary k
 # conn.execute("update watering_schedule set plant_name = 'Jalapeno' where plant_name = 'jalapeno'")
 # conn.execute("update watering_schedule set last_watered = '2019-08-10 17:57:39' where plant_name = 'Rubber Plant'")
 
+# Add column example
+# conn.execute("alter table watering_schedule add ignore smallint default 0")
+
 conn.commit()
 
 cursor = conn.execute("SELECT * FROM watering_schedule")
