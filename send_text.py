@@ -18,7 +18,7 @@ FROM_PWD    = os.environ.get('FROM_PWD')    # Environment variable called FROM_P
 SMTP_SERVER = "imap.gmail.com"
 SMTP_PORT   = 993
 
-# Check which palnts need water and send a text for each plant if they need water
+# Check which plants need water and send a text for each plant if they need water
 def send_text():
     print 'Starting...'
 

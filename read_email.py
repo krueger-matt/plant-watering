@@ -18,7 +18,6 @@ import datetime
 
 print datetime.datetime.now()
 
-
 FROM_EMAIL  = os.environ.get('FROM_EMAIL')  # Environment variable called FROM_EMAIL set to email address used
 FROM_PWD    = os.environ.get('FROM_PWD')    # Environment variable called FROM_PWD set to email password
 SMTP_SERVER = "imap.gmail.com"
@@ -40,7 +39,7 @@ def read_email_from_gmail():
 
     try:
     	# Login to email
-    	print "starting"
+    	print "Logging into email..."
         mail = imaplib.IMAP4_SSL(SMTP_SERVER)
         mail.login(FROM_EMAIL,FROM_PWD)
         mail.select('inbox')
@@ -116,46 +115,14 @@ def read_email_from_gmail():
                                 # Delete the email
                                 mail.store("1:{0}".format(id_to_delete), '+X-GM-LABELS', '\\Trash')
                                 print 'Email deleted'
-                            elif text == "Status":
-                                status_cursor = conn.execute("SELECT plant_name, schedule_in_days - days_since_last_water FROM watering_schedule")
-                                
-                                for status_row in status_cursor:
-                                    status = str(status_row[0]) + ' ' + str(status_row[1]) + ' days'
-                                    print status
-
-                                TO = [] # Phone number goes here as a string
-                                SUBJECT = status
-                                email = SUBJECT
-                                message = """\
-                                From: %s
-                                To: %s
-                                Subject: %s
-
-                                %s
-                                """ % (FROM_EMAIL, ", ".join(TO), SUBJECT, email)
-                                server = smtplib.SMTP('smtp.gmail.com', 587)
-                                server.ehlo()
-                                server.starttls()
-                                server.ehlo()
-                                server.login(FROM_EMAIL, FROM_PWD)
-                                server.sendmail(FROM_EMAIL, TO, message)
-                                server.quit()
-                                print 'Text sent'
-                                # Get the mail ID to delete from id_list
-                                id_to_delete = id_list[i-1]
-                                # Delete the email
-                                mail.store("1:{0}".format(id_to_delete), '+X-GM-LABELS', '\\Trash')
-                                print 'Email deleted'
-
-
 
     # Failed login
     except Exception, e:
         print str(e)
-        print "failed"
+        print "Failed to login"
 
     conn.close()
-    print "done"
+    print "Done"
 
 
 read_email_from_gmail()

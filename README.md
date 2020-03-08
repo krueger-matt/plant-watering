@@ -23,8 +23,9 @@ The fields in the database are:
 
   ignore smallint
 
-Setup a schedule for for maintenance.py to run in the early mornings, send_text.py to run anytime after maintenance.py, and read_email.py to run hourly (or more)
+Setup a schedule for for maintenance.py to run in the early mornings, send_text.py to run anytime after maintenance.py, read_email.py to run hourly (or more), and check_status.py to run every ten minutes (or more).
 
+Check when your plant needs to be watered next by sending a text with "Plant Name status" as the message
 
 Note that to have Gmail send a message to a phone number, you need to format it differently for different carriers:
 

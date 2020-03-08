@@ -40,9 +40,12 @@ def check_status():
     for row in cursor:
         output[str(row[0])] = row[1]
 
+# Create list of plant names from 'output' dictionary
+    plant_list = output.keys()
+
     try:
     	# Login to email
-    	print "starting"
+    	print "Logging into email..."
         mail = imaplib.IMAP4_SSL(SMTP_SERVER)
         mail.login(FROM_EMAIL,FROM_PWD)
         mail.select('inbox')
@@ -85,33 +88,44 @@ def check_status():
                             fp = open(filePath, 'r')
                             text = fp.read()
 
+                            print text
+
                             # Delete attachments
                             os.remove(filePath)
 
-                            # text is the name of the plant that the user asked for
-                            # status is the number of days until that plant needs to be watered (stored in the output dictionary)
-                            status = output.get(text)
-                            # status_text is the actual message that will get sent back, telling all users when that plant needs to be watered
-                            status_text =  "Water " + text + " in " + str(status) + " days"
+                            # This neat trick finds the first instance of a string inside a list
+                            # So what we want to do is look if the email attachment has any of our plants in it
+                            # Tbis could get dicey if a plant had a very similar name another in the database
+                            if any(plant in text for plant in plant_list):
 
-                            TO = [] # Phone number goes here as a string
-                            SUBJECT = status_text
-                            email = SUBJECT
-                            message = """\
-                            From: %s
-                            To: %s
-                            Subject: %s
+                                # removed_string takes the text variable, which is the email attachment, and removes the ' status' portion in order to get hte plant name
+                                removed_string = text.find(' status')
+                                plant = text[0:removed_string]
 
-                            %s
-                            """ % (FROM_EMAIL, ", ".join(TO), SUBJECT, email)
-                            server = smtplib.SMTP('smtp.gmail.com', 587)
-                            server.ehlo()
-                            server.starttls()
-                            server.ehlo()
-                            server.login(FROM_EMAIL, FROM_PWD)
-                            server.sendmail(FROM_EMAIL, TO, message)
-                            server.quit()
-                            print 'Text sent'
+                                # status is the number of days until that plant needs to be watered (stored in the output dictionary)
+                                status = output.get(plant)
+                                # status_text is the actual message that will get sent back, telling all users when that plant needs to be watered
+                                status_text =  "Water " + plant + " in " + str(status) + " days"
+
+                                TO = [] # Phone number goes here as a string
+                                SUBJECT = status_text
+                                email = SUBJECT
+                                message = """\
+                                From: %s
+                                To: %s
+                                Subject: %s
+
+                                %s
+                                """ % (FROM_EMAIL, ", ".join(TO), SUBJECT, email)
+                                server = smtplib.SMTP('smtp.gmail.com', 587)
+                                server.ehlo()
+                                server.starttls()
+                                server.ehlo()
+                                server.login(FROM_EMAIL, FROM_PWD)
+                                server.sendmail(FROM_EMAIL, TO, message)
+                                server.quit()
+                                print 'Text sent'
+
                             # Get the mail ID to delete from id_list
                             id_to_delete = id_list[i-1]
                             # Delete the email
@@ -123,10 +137,10 @@ def check_status():
     # Failed login
     except Exception, e:
         print str(e)
-        print "failed"
+        print "Failed to login"
 
     conn.close()
-    print "done"
+    print "Done"
 
 
 check_status()
