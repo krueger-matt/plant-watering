@@ -59,10 +59,14 @@ def check_status():
 
         # Loop through all emails starting with earliest ID and incrementing by 1 to highest email ID
         for i in range(first_email_id,latest_email_id + 1, 1):
+
+            print "i: " + str(i)
+
             typ, data = mail.fetch(i, '(RFC822)' )
 
             # Grab email data including from, subject, and time
             for response_part in data:
+
                 if isinstance(response_part, tuple):
                     msg = emaily.message_from_string(response_part[1])
                     email_subject = msg['subject']
@@ -88,49 +92,64 @@ def check_status():
                             fp = open(filePath, 'r')
                             text = fp.read()
 
-                            print text
+                            print "text: " + str(text)
 
                             # Delete attachments
                             os.remove(filePath)
 
-                            # This neat trick finds the first instance of a string inside a list
-                            # So what we want to do is look if the email attachment has any of our plants in it
-                            # Tbis could get dicey if a plant had a very similar name another in the database
-                            if any(plant in text for plant in plant_list):
+                            # Used to prevent emails from being sent when the request isn't a status update
+                            checker = text.find(' status')
 
-                                # removed_string takes the text variable, which is the email attachment, and removes the ' status' portion in order to get hte plant name
-                                removed_string = text.find(' status')
-                                plant = text[0:removed_string]
+                            if checker > 0:
 
-                                # status is the number of days until that plant needs to be watered (stored in the output dictionary)
-                                status = output.get(plant)
-                                # status_text is the actual message that will get sent back, telling all users when that plant needs to be watered
-                                status_text =  "Water " + plant + " in " + str(status) + " days"
+                                print "checker: " + str(checker)
 
-                                TO = [] # Phone number goes here as a string
-                                SUBJECT = status_text
-                                email = SUBJECT
-                                message = """\
-                                From: %s
-                                To: %s
-                                Subject: %s
+                                # This neat trick finds the first instance of a string inside a list
+                                # So what we want to do is look if the email attachment has any of our plants in it
+                                # Tbis could get dicey if a plant had a very similar name another in the database
+                                if any(plant in text for plant in plant_list):
 
-                                %s
-                                """ % (FROM_EMAIL, ", ".join(TO), SUBJECT, email)
-                                server = smtplib.SMTP('smtp.gmail.com', 587)
-                                server.ehlo()
-                                server.starttls()
-                                server.ehlo()
-                                server.login(FROM_EMAIL, FROM_PWD)
-                                server.sendmail(FROM_EMAIL, TO, message)
-                                server.quit()
-                                print 'Text sent'
+                                    # removed_string takes the text variable, which is the email attachment, and removes the ' status' portion in order to get hte plant name
+                                    removed_string = text.find(' status')
+                                    plant = text[0:removed_string]
 
-                            # Get the mail ID to delete from id_list
-                            id_to_delete = id_list[i-1]
-                            # Delete the email
-                            mail.store("1:{0}".format(id_to_delete), '+X-GM-LABELS', '\\Trash')
-                            print 'Email deleted'
+                                    # status is the number of days until that plant needs to be watered (stored in the output dictionary)
+                                    status = output.get(plant)
+                                    # status_text is the actual message that will get sent back, telling all users when that plant needs to be watered
+                                    status_text =  "Water " + plant + " in " + str(status) + " days"
+
+                                    TO = [] # Phone number goes here as a string
+                                    SUBJECT = status_text
+                                    email = SUBJECT
+                                    message = """\
+                                    From: %s
+                                    To: %s
+                                    Subject: %s
+
+                                    %s
+                                    """ % (FROM_EMAIL, ", ".join(TO), SUBJECT, email)
+                                    server = smtplib.SMTP('smtp.gmail.com', 587)
+                                    server.ehlo()
+                                    server.starttls()
+                                    server.ehlo()
+                                    server.login(FROM_EMAIL, FROM_PWD)
+                                    server.sendmail(FROM_EMAIL, TO, message)
+                                    server.quit()
+                                    print 'Text sent'
+
+                                    # Get the mail ID to delete from id_list
+                                    id_to_delete = id_list[i-1]
+
+                                    print id_list
+
+                                    print id_to_delete
+                                    # Delete the email
+                                    # mail.store("1:{0}".format(id_to_delete), '+X-GM-LABELS', '\\Trash')
+                                    mail.store(str(id_to_delete), '+X-GM-LABELS', '\\Trash')
+                                    print 'Email deleted'
+
+                            else:
+                                print "checker should be -1. Is it? checker: " + str(checker)
 
 
 
