@@ -8,7 +8,9 @@ conn = sqlite3.connect('plants.db')
 # This will auto-increment since ID is primary key
 conn.execute("create table if not exists watering_schedule (id integer primary key, plant_name varchar(765), schedule_in_days integer, last_watered timestamp, days_since_last_water integer, need_water smallint, ignore smallint)")
 
-# Column definitions
+conn.execute("create table if not exists score_keeper (id integer primary key, plant_id integer, email varchar(765), timestamp timestamp)")
+
+# Watering Schedule column definitions
 # id - table id
 # plant_name - name of plant
 # schedule_in_days - how often the plant needs to be watered
@@ -16,6 +18,12 @@ conn.execute("create table if not exists watering_schedule (id integer primary k
 # days_since_last_water - number of days since plant was last watered
 # need_water - boolean where 0 means plant does not need water and 1 means plant needs water
 # ignore - boolean where 1 means ignore this plant (dead or dormant)
+
+# Score Keeper column definitions
+# id - table id
+# plant_id - id of plant record from Watering Schedule table
+# email - phone number/email address of person who watered table
+# timestamp - date the plant was watered
 
 # Note that when we insert, we use the column name we want to insert into and the value. We can skip ID since it will auto-increment
 
@@ -35,13 +43,24 @@ conn.execute("create table if not exists watering_schedule (id integer primary k
 # Add column example
 # conn.execute("alter table watering_schedule add ignore smallint default 0")
 
-conn.commit()
+# Truncate example
+# conn.execute("delete from score_keeper")
 
+# Commit
+# conn.commit()
+
+print 'Watering schedule: '
 cursor = conn.execute("SELECT * FROM watering_schedule")
 
 for row in cursor:
 	print row	
 
-# print output
+print ''
+
+print 'Score keeper: '
+cursor = conn.execute("SELECT * FROM score_keeper")
+
+for row in cursor:
+	print row	
 
 conn.close()

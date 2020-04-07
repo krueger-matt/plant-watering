@@ -18,8 +18,8 @@ import datetime
 
 print datetime.datetime.now()
 
-FROM_EMAIL  = os.environ.get('FROM_EMAIL')  # Environment variable called FROM_EMAIL set to email address used
-FROM_PWD    = os.environ.get('FROM_PWD')    # Environment variable called FROM_PWD set to email password
+# FROM_EMAIL  = os.environ.get('FROM_EMAIL')  # Environment variable called FROM_EMAIL set to email address used
+# FROM_PWD    = os.environ.get('FROM_PWD')    # Environment variable called FROM_PWD set to email password
 SMTP_SERVER = "imap.gmail.com"
 SMTP_PORT   = 993
 
@@ -31,31 +31,48 @@ if 'attachments' not in os.listdir(detach_dir):
 # Function to go to Gmail and read emails. Checks to find ones with text that = 'Watered'
 # If there is a text saying "Plant Name watered" then update datebase column last_watered with current datetime
 # After database is updated, send text confirming to all users that the plant has been watered
+# Update score_keeper table with plant_id, email, and date everytime a plant is successfully watered. This can be used
+# to gamify the plant watering app!
 def read_email_from_gmail():
 
     row = []
     conn = sqlite3.connect('plants.db')
     cursor = conn.execute("SELECT plant_name FROM watering_schedule WHERE need_water = 1 AND ignore = 0")
 
+    # Login to email
     try:
-    	# Login to email
     	print "Logging into email..."
         mail = imaplib.IMAP4_SSL(SMTP_SERVER)
         mail.login(FROM_EMAIL,FROM_PWD)
-        mail.select('inbox')
 
-        type, data = mail.search(None, 'ALL')
-        mail_ids = data[0]
+    # Failed login
+    except Exception, e:
+        print str(e)
+        print "Failed to login!"
+        print "Program terminating!"
+        quit()
+
+    mail.select('inbox')
+
+    type, data = mail.search(None, 'ALL')
+    mail_ids = data[0]
+
+    # If this is true, that means there are emails in the inbox. If not, then no mail!
+    if len(mail_ids) > 0:
 
         id_list = mail_ids.split()   
         first_email_id = int(id_list[0])
         latest_email_id = int(id_list[-1])
 
-        # Loop through all emails starting with earliest ID and incrementing by 1 to highest email ID
+        # Loop through all of the plant_names that the SQL query above pulled (all plants where need_water = 1)
         for row in cursor:
+
+            print 'Looking for ' + str(row[0])
+
+            # Loop through all emails starting with earliest ID and incrementing by 1 to highest email ID
             for i in range(first_email_id,latest_email_id + 1, 1):
 
-                print "i: " + str(i)
+                print "Email ID: " + str(i)
 
                 typ, data = mail.fetch(i, '(RFC822)' )
 
@@ -86,7 +103,7 @@ def read_email_from_gmail():
                                 fp = open(filePath, 'r')
                                 text = fp.read()
 
-                                print "text: " + str(text)
+                                print "Email attachment text: " + str(text)
 
                                 # Delete attachments
                                 os.remove(filePath)
@@ -96,13 +113,32 @@ def read_email_from_gmail():
 
                                 if checker > 0:
 
-                                    print "checker: " + str(checker)
+                                    print "Checker: " + str(checker)
 
                                     # text.strip() to remove leading and especially trailing whitespace
                                     if text.strip() == row[0] + " watered":
                                         conn.execute("update watering_schedule set last_watered = datetime('now'), days_since_last_water = 0, need_water = 0 where plant_name = '" + row[0] + "'")
                                         conn.commit()
-                                        print row[0] + ' record updated'
+
+                                        plant_name = row[0]
+
+                                        print plant_name + ' record updated'
+
+                                        # New cursor to run query to get plant_id
+                                        plant_id_cursor = conn.execute("select id from watering_schedule where plant_name = '" + plant_name + "'")
+
+                                        # Get actual plant_id from the cursor
+                                        for plant in plant_id_cursor:
+                                            plant_id = plant[0]
+
+                                        print plant_id
+
+                                        score_keeper_sql = ("insert into score_keeper (plant_id,email,timestamp) values(" + str(plant_id) + ",'" + email_from + "',date('now'))")
+                                        print score_keeper_sql
+
+                                        # Insert plant_id and email into score_keeper table
+                                        conn.execute(score_keeper_sql)
+                                        conn.commit()
 
                                         TO = [] # Phone number goes here as a string
                                         SUBJECT = row[0] + ' watered'
@@ -123,12 +159,12 @@ def read_email_from_gmail():
                                         server.quit()
                                         print 'Text sent'
 
-                                        print id_list
+                                        print 'Email ID list: ' + ', '.join(id_list)
 
                                         # Get the mail ID to delete from id_list
                                         id_to_delete = id_list[i-1]
 
-                                        print id_to_delete
+                                        print 'Email ID to delete: ' + str(id_to_delete)
 
                                         # Delete the email
                                         # mail.store("1:{0}".format(id_to_delete), '+X-GM-LABELS', '\\Trash')
@@ -138,13 +174,10 @@ def read_email_from_gmail():
                                 else:
                                     print "checker should be -1. Is it? checker: " + str(checker)
 
-    # Failed login
-    except Exception, e:
-        print str(e)
-        print "Failed to login"
+        conn.close()
+        print "Done"
 
-    conn.close()
-    print "Done"
-
+    else:
+        print 'Mailbox is empty!'
 
 read_email_from_gmail()
