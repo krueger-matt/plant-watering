@@ -1,10 +1,6 @@
 # This script runs anytime after maintenance.py (I have it run at 10am on weekends and 6pm on weekdays) and sends a text for each plant
 # that needs to be watered (based on the need_water field in the db).
-# Make sure the TO = [] line is updated with a phone number for the text to be sent to. Each mobile carrier uses a different
-# domain after the phone number for email to text.
 
-import time
-import os
 import sqlite3
 import datetime
 
