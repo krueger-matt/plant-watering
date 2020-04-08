@@ -16,12 +16,15 @@ import os
 import sqlite3
 import datetime
 
+import config
+import plant_functions
+
 print datetime.datetime.now()
 
-# FROM_EMAIL  = os.environ.get('FROM_EMAIL')  # Environment variable called FROM_EMAIL set to email address used
-# FROM_PWD    = os.environ.get('FROM_PWD')    # Environment variable called FROM_PWD set to email password
-SMTP_SERVER = "imap.gmail.com"
-SMTP_PORT   = 993
+FROM_EMAIL  = config.FROM_EMAIL
+FROM_PWD    = config.FROM_PWD
+SMTP_SERVER = config.SMTP_SERVER
+SMTP_PORT   = config.SMTP_PORT
 
 # Create a directory for attachments
 detach_dir = '.'
@@ -140,24 +143,10 @@ def read_email_from_gmail():
                                         conn.execute(score_keeper_sql)
                                         conn.commit()
 
-                                        TO = [] # Phone number goes here as a string
-                                        SUBJECT = row[0] + ' watered'
-                                        email = SUBJECT
-                                        message = """\
-                                        From: %s
-                                        To: %s
-                                        Subject: %s
-
-                                        %s
-                                        """ % (FROM_EMAIL, ", ".join(TO), SUBJECT, email)
-                                        server = smtplib.SMTP('smtp.gmail.com', 587)
-                                        server.ehlo()
-                                        server.starttls()
-                                        server.ehlo()
-                                        server.login(FROM_EMAIL, FROM_PWD)
-                                        server.sendmail(FROM_EMAIL, TO, message)
-                                        server.quit()
-                                        print 'Text sent'
+                                        # Create email subject to pass to plant_functions
+                                        email_subject = row[0] + ' watered'
+                                        # Call plant_functions and pass row and email subject
+                                        plant_functions.email_login(row,email_subject)
 
                                         print 'Email ID list: ' + ', '.join(id_list)
 
@@ -179,5 +168,6 @@ def read_email_from_gmail():
 
     else:
         print 'Mailbox is empty!'
+
 
 read_email_from_gmail()

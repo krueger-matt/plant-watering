@@ -1,10 +1,5 @@
 # This script runs in the early morning. It updates the need_water field if needed and updates the days_since_last_water field on all plants
 
-import smtplib
-import time
-import imaplib
-import email as emaily
-import os
 import sqlite3
 
 def maintenance():

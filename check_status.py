@@ -10,12 +10,15 @@ import os
 import sqlite3
 import datetime
 
+import config
+import plant_functions
+
 print datetime.datetime.now()
 
-FROM_EMAIL  = os.environ.get('FROM_EMAIL')  # Environment variable called FROM_EMAIL set to email address used
-FROM_PWD    = os.environ.get('FROM_PWD')    # Environment variable called FROM_PWD set to email password
-SMTP_SERVER = "imap.gmail.com"
-SMTP_PORT   = 993
+FROM_EMAIL  = config.FROM_EMAIL
+FROM_PWD    = config.FROM_PWD
+SMTP_SERVER = config.SMTP_SERVER
+SMTP_PORT   = config.SMTP_PORT
 
 # Create a directory for attachments
 detach_dir = '.'
@@ -43,15 +46,26 @@ def check_status():
 # Create list of plant names from 'output' dictionary
     plant_list = output.keys()
 
+    # Login to email
     try:
-    	# Login to email
-    	print "Logging into email..."
+        print "Logging into email..."
         mail = imaplib.IMAP4_SSL(SMTP_SERVER)
         mail.login(FROM_EMAIL,FROM_PWD)
-        mail.select('inbox')
 
-        type, data = mail.search(None, 'ALL')
-        mail_ids = data[0]
+    # Failed login
+    except Exception, e:
+        print str(e)
+        print "Failed to login!"
+        print "Program terminating!"
+        quit()
+
+    mail.select('inbox')
+
+    type, data = mail.search(None, 'ALL')
+    mail_ids = data[0]
+
+    # If this is true, that means there are emails in the inbox. If not, then no mail!
+    if len(mail_ids) > 0:
 
         id_list = mail_ids.split()   
         first_email_id = int(id_list[0])
@@ -115,27 +129,11 @@ def check_status():
 
                                     # status is the number of days until that plant needs to be watered (stored in the output dictionary)
                                     status = output.get(plant)
-                                    # status_text is the actual message that will get sent back, telling all users when that plant needs to be watered
-                                    status_text =  "Water " + plant + " in " + str(status) + " days"
 
-                                    TO = [] # Phone number goes here as a string
-                                    SUBJECT = status_text
-                                    email = SUBJECT
-                                    message = """\
-                                    From: %s
-                                    To: %s
-                                    Subject: %s
-
-                                    %s
-                                    """ % (FROM_EMAIL, ", ".join(TO), SUBJECT, email)
-                                    server = smtplib.SMTP('smtp.gmail.com', 587)
-                                    server.ehlo()
-                                    server.starttls()
-                                    server.ehlo()
-                                    server.login(FROM_EMAIL, FROM_PWD)
-                                    server.sendmail(FROM_EMAIL, TO, message)
-                                    server.quit()
-                                    print 'Text sent'
+                                    # Create email subject to pass to plant_functions
+                                    email_subject = "Water " + plant + " in " + str(status) + " days"
+                                    # Call plant_functions and pass row and email subject
+                                    plant_functions.email_login(row,email_subject)
 
                                     # Get the mail ID to delete from id_list
                                     id_to_delete = id_list[i-1]
@@ -151,15 +149,11 @@ def check_status():
                             else:
                                 print "checker should be -1. Is it? checker: " + str(checker)
 
+        conn.close()
+        print "Done"
 
-
-    # Failed login
-    except Exception, e:
-        print str(e)
-        print "Failed to login"
-
-    conn.close()
-    print "Done"
+    else:
+        print 'Mailbox is empty!'
 
 
 check_status()

@@ -3,20 +3,14 @@
 # Make sure the TO = [] line is updated with a phone number for the text to be sent to. Each mobile carrier uses a different
 # domain after the phone number for email to text.
 
-import smtplib
 import time
-import imaplib
-import email as emaily
 import os
 import sqlite3
 import datetime
 
-print datetime.datetime.now()
+import plant_functions
 
-FROM_EMAIL  = os.environ.get('FROM_EMAIL')  # Environment variable called FROM_EMAIL set to email address used
-FROM_PWD    = os.environ.get('FROM_PWD')    # Environment variable called FROM_PWD set to email password
-SMTP_SERVER = "imap.gmail.com"
-SMTP_PORT   = 993
+print datetime.datetime.now()
 
 # Check which plants need water and send a text for each plant if they need water
 def send_text():
@@ -28,30 +22,10 @@ def send_text():
     conn = sqlite3.connect('plants.db')
     cursor = conn.execute("SELECT plant_name FROM watering_schedule WHERE need_water = 1 AND ignore = 0")
     for row in cursor:
-        TO = [] # Phone number goes here as a string
-        SUBJECT = 'Water ' + row[0]
-        email = SUBJECT
-        print SUBJECT
-
-        # Prepare actual message
-        message = """\
-        From: %s
-        To: %s
-        Subject: %s
-
-        %s
-        """ % (FROM_EMAIL, ", ".join(TO), SUBJECT, email)
-
-        # Send the mail
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.ehlo()
-        server.starttls()
-        server.ehlo()
-        server.login(FROM_EMAIL, FROM_PWD)
-        server.sendmail(FROM_EMAIL, TO, message)
-        server.quit()
-        print 'Text sent'
-        print ''
+        # Create email subject to pass to plant_functions
+        email_subject = 'Water ' + row[0]
+        # Call plant_functions and pass row and email subject
+        plant_functions.email_login(row,email_subject)
 
     if len(row) == 0:
         print 'No plants need watering'
