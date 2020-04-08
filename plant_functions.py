@@ -1,5 +1,4 @@
 import smtplib
-# import imaplib
 
 import config
 
