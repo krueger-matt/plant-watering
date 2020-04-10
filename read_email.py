@@ -42,23 +42,12 @@ def read_email_from_gmail():
     conn = sqlite3.connect('plants.db')
     cursor = conn.execute("SELECT plant_name FROM watering_schedule WHERE need_water = 1 AND ignore = 0")
 
-    # Login to email
-    try:
-    	print "Logging into email..."
-        mail = imaplib.IMAP4_SSL(SMTP_SERVER)
-        mail.login(FROM_EMAIL,FROM_PWD)
-
-    # Failed login
-    except Exception, e:
-        print str(e)
-        print "Failed to login!"
-        print "Program terminating!"
-        quit()
+    mail = plant_functions.email_login()
 
     mail.select('inbox')
-
     type, data = mail.search(None, 'ALL')
     mail_ids = data[0]
+
 
     # If this is true, that means there are emails in the inbox. If not, then no mail!
     if len(mail_ids) > 0:
@@ -82,86 +71,59 @@ def read_email_from_gmail():
                 # Grab email data including from, subject, and time
                 for response_part in data:
                     if isinstance(response_part, tuple):
-                        msg = emaily.message_from_string(response_part[1])
-                        email_subject = msg['subject']
-                        if len(email_subject) == 0:
-                        	email_subject = '(no subject)'
-                        email_from = msg['from']
-                        date = msg["Date"]
 
-                        # Download attachments
-                        for part in msg.walk():
-                            if part.get_content_maintype() == 'multipart':
-                                continue
-                            if part.get('Content-Disposition') is None:
-                                continue
-                            fileName = part.get_filename()
-                        # Read file
-                        if bool(fileName):
-                            filePath = os.path.join(detach_dir, 'attachments', fileName)
-                            if not os.path.isfile(filePath):
-                                fp = open(filePath, 'wb')
-                                fp.write(part.get_payload(decode=True))
-                                fp.close()
-                                fp = open(filePath, 'r')
-                                text = fp.read()
+                        email_parse = plant_functions.email_parse(detach_dir,response_part)
+                        checker = email_parse[0]
+                        text = email_parse[1]
+                        email_from = email_parse[2]
 
-                                print "Email attachment text: " + str(text)
+                        if checker > 0:
 
-                                # Delete attachments
-                                os.remove(filePath)
+                            print "Checker: " + str(checker)
 
-                                # Used to prevent emails from being sent when the request isn't a status update
-                                checker = text.find(' watered')
+                            # text.strip() to remove leading and especially trailing whitespace
+                            if text.strip() == row[0] + " watered":
+                                conn.execute("update watering_schedule set last_watered = datetime('now'), days_since_last_water = 0, need_water = 0 where plant_name = '" + row[0] + "'")
+                                conn.commit()
 
-                                if checker > 0:
+                                plant_name = row[0]
 
-                                    print "Checker: " + str(checker)
+                                print plant_name + ' record updated'
 
-                                    # text.strip() to remove leading and especially trailing whitespace
-                                    if text.strip() == row[0] + " watered":
-                                        conn.execute("update watering_schedule set last_watered = datetime('now'), days_since_last_water = 0, need_water = 0 where plant_name = '" + row[0] + "'")
-                                        conn.commit()
+                                # New cursor to run query to get plant_id
+                                plant_id_cursor = conn.execute("select id from watering_schedule where plant_name = '" + plant_name + "'")
 
-                                        plant_name = row[0]
+                                # Get actual plant_id from the cursor
+                                for plant in plant_id_cursor:
+                                    plant_id = plant[0]
 
-                                        print plant_name + ' record updated'
+                                print plant_id
 
-                                        # New cursor to run query to get plant_id
-                                        plant_id_cursor = conn.execute("select id from watering_schedule where plant_name = '" + plant_name + "'")
+                                score_keeper_sql = ("insert into score_keeper (plant_id,email,timestamp) values(" + str(plant_id) + ",'" + email_from + "',date('now'))")
+                                print score_keeper_sql
 
-                                        # Get actual plant_id from the cursor
-                                        for plant in plant_id_cursor:
-                                            plant_id = plant[0]
+                                # Insert plant_id and email into score_keeper table
+                                conn.execute(score_keeper_sql)
+                                conn.commit()
 
-                                        print plant_id
+                                # Create email subject to pass to plant_functions
+                                email_subject = row[0] + ' watered'
+                                # Call plant_functions and pass row and email subject
+                                plant_functions.send_email(row,email_subject)
 
-                                        score_keeper_sql = ("insert into score_keeper (plant_id,email,timestamp) values(" + str(plant_id) + ",'" + email_from + "',date('now'))")
-                                        print score_keeper_sql
+                                # Get the mail ID to delete from id_list
+                                id_to_delete = id_list[i-1]
 
-                                        # Insert plant_id and email into score_keeper table
-                                        conn.execute(score_keeper_sql)
-                                        conn.commit()
+                                print 'Email ID list: ' + ', '.join(id_list)
 
-                                        # Create email subject to pass to plant_functions
-                                        email_subject = row[0] + ' watered'
-                                        # Call plant_functions and pass row and email subject
-                                        plant_functions.email_login(row,email_subject)
+                                print 'Email ID to delete: ' + str(id_to_delete)
 
-                                        print 'Email ID list: ' + ', '.join(id_list)
+                                # Delete the email
+                                mail.store(str(id_to_delete), '+X-GM-LABELS', '\\Trash')
+                                print 'Email deleted'
 
-                                        # Get the mail ID to delete from id_list
-                                        id_to_delete = id_list[i-1]
-
-                                        print 'Email ID to delete: ' + str(id_to_delete)
-
-                                        # Delete the email
-                                        # mail.store("1:{0}".format(id_to_delete), '+X-GM-LABELS', '\\Trash')
-                                        mail.store(str(id_to_delete), '+X-GM-LABELS', '\\Trash')
-                                        print 'Email deleted'
-
-                                else:
-                                    print "checker should be -1. Is it? checker: " + str(checker)
+                        else:
+                            print "checker should be -1. Is it? checker: " + str(checker)
 
         conn.close()
         print "Done"
