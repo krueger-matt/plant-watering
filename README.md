@@ -7,7 +7,7 @@ Create a new Gmail account and allow less secure apps to access it
 
 Create (or modify the one provided) a SQLite database to keep track of your plants
 
-The database has two tables:
+The database has three tables:
 
 The fields in the watering_schedule table are:
   * id integer primary key,
@@ -23,6 +23,11 @@ The fields in the score_keeper table are:
   * plant_id integer,
   * email varchar(765),
   * timestamp timestamp
+
+The fields in the emails table are:
+  * id integer primary key,
+  * email varchar(765),
+  * name varchar(765)
 
 Setup a schedule for for maintenance.py to run in the early mornings, send_text.py to run anytime after maintenance.py, read_email.py to run hourly (or more), and check_status.py to run every ten minutes (or more).
 
