@@ -2,12 +2,23 @@ import smtplib
 import imaplib
 import email as emaily
 import os
+import sqlite3
 
 import config
 
+# Create a directory for attachments
+def attachments_dir():
+	detach_dir = '.'
+	if 'attachments' not in os.listdir(detach_dir):
+	    os.mkdir('attachments')
+
+	return detach_dir
+
+
+
 # Login to email, prepare message, and send mail
 # Takes row which is the plant name from the SQL query and email_subect which is defined in whichever script calls this one
-def send_email(row,email_subject):
+def send_email(email_subject,row=None):
 
 	FROM_EMAIL  = config.FROM_EMAIL
 	FROM_PWD    = config.FROM_PWD
@@ -38,6 +49,7 @@ def send_email(row,email_subject):
 	print 'Text sent'
 
 
+
 # Email login for read_email.py and check_status.py
 def email_login():
 	FROM_EMAIL  = config.FROM_EMAIL
@@ -58,6 +70,7 @@ def email_login():
 		print "Failed to login!"
 		print "Program terminating!"
 		quit()
+
 
 
 # Parse emails in inbox. Used in read_email.py and check_status.py
@@ -92,7 +105,30 @@ def email_parse(detach_dir,response_part):
             	checker = text.find(' watered')
             elif text.find(' status') > 0:
             	checker = text.find(' status')
+            elif text.lower().find('get score') >= 0:
+            	checker = text.lower().find('get score')
             else:
             	checker = -1
 
             return checker, text, email_from
+
+
+
+# Total score from score_keeper table by user
+def get_overall_score():
+
+	score_list = []
+
+	conn = sqlite3.connect('plants.db')
+	cursor = conn.execute("""SELECT e.name, count(sk.id) 
+							 FROM score_keeper sk 
+							 JOIN emails e ON sk.email = e.email 
+							 GROUP BY 1 ORDER BY 2 DESC""")
+
+	print 'Overall score:'
+
+	for row in cursor:
+		print str(row[0]) + ": " + str(row[1])
+		score_list.append(str(row[0]) + ": " + str(row[1]))
+
+	return score_list

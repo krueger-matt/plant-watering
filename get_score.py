@@ -1,6 +1,4 @@
-# This script runs every 10 minutes. It checks if anyone has emailed a plant name which means they want to know when it should be watered next
-# If it finds an email with a plant name, it sends a text back saying when the plant next needs water
-# Make sure the TO = [] line is updated with a phone number for the text to be sent to.
+# This checks if anyone has texted Get Score and responds with the current score from the score_keeper table
 
 import time
 import os
@@ -19,26 +17,7 @@ SMTP_PORT   = config.SMTP_PORT
 
 detach_dir = plant_functions.attachments_dir()
 
-# Function to go to Gmail and read emails
-# Looks for emails with just a plant name in them
-# Sends a text to users with the number of days until that plant needs to be watered
-def check_status():
-
-    row = []
-    conn = sqlite3.connect('plants.db')
-
-# Query to get plant names and days until next water
-    cursor = conn.execute("SELECT plant_name, schedule_in_days - days_since_last_water FROM watering_schedule")
-
-# Hold query in dictionary
-    output = {}
-
-# Add items to dictionary
-    for row in cursor:
-        output[str(row[0])] = row[1]
-
-# Create list of plant names from 'output' dictionary
-    plant_list = output.keys()
+def get_score():
 
     mail = plant_functions.email_login()
 
@@ -69,26 +48,17 @@ def check_status():
                     text = email_parse[1]
                     email_from = email_parse[2]
 
-                    if checker > 0:
+                    if checker >= 0:
 
                         print "checker: " + str(checker)
 
-                        # This neat trick finds the first instance of a string inside a list
-                        # So what we want to do is look if the email attachment has any of our plants in it
-                        # Tbis could get dicey if a plant had a very similar name another in the database
-                        if any(plant in text for plant in plant_list):
-
-                            # removed_string takes the text variable, which is the email attachment, and removes the ' status' portion in order to get the plant name
-                            removed_string = text.find(' status')
-                            plant = text[0:removed_string]
-
-                            # status is the number of days until that plant needs to be watered (stored in the output dictionary)
-                            status = output.get(plant)
+                        if text.strip().lower() == "get score":
 
                             # Create email subject to pass to plant_functions
-                            email_subject = "Water " + plant + " in " + str(status) + " days"
+                            email_subject = plant_functions.get_overall_score()
+
                             # Call plant_functions and pass row and email subject
-                            plant_functions.send_email(email_subject,row)
+                            plant_functions.send_email(email_subject)
 
                             # Get the mail ID to delete from id_list
                             id_to_delete = id_list[i-1]
@@ -104,11 +74,10 @@ def check_status():
                     else:
                         print "checker should be -1. Is it? checker: " + str(checker)
 
-        conn.close()
         print "Done"
 
     else:
         print 'Mailbox is empty!'
 
 
-check_status()
+get_score()

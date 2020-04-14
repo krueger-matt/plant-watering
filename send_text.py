@@ -21,7 +21,7 @@ def send_text():
         # Create email subject to pass to plant_functions
         email_subject = 'Water ' + row[0]
         # Call plant_functions and pass row and email subject
-        plant_functions.email_login(row,email_subject)
+        plant_functions.send_email(email_subject,row)
 
     if len(row) == 0:
         print 'No plants need watering'

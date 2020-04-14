@@ -8,10 +8,7 @@
 # for situations when multiple people are getting the plant watering texts.
 # Make sure the TO = [] line is updated with a phone number for the text to be sent to.
 
-import smtplib
 import time
-import imaplib
-import email as emaily
 import os
 import sqlite3
 import datetime
@@ -26,10 +23,7 @@ FROM_PWD    = config.FROM_PWD
 SMTP_SERVER = config.SMTP_SERVER
 SMTP_PORT   = config.SMTP_PORT
 
-# Create a directory for attachments
-detach_dir = '.'
-if 'attachments' not in os.listdir(detach_dir):
-    os.mkdir('attachments')
+detach_dir = plant_functions.attachments_dir()
 
 # Function to go to Gmail and read emails. Checks to find ones with text that = 'Watered'
 # If there is a text saying "Plant Name watered" then update datebase column last_watered with current datetime
@@ -109,7 +103,7 @@ def read_email_from_gmail():
                                 # Create email subject to pass to plant_functions
                                 email_subject = row[0] + ' watered'
                                 # Call plant_functions and pass row and email subject
-                                plant_functions.send_email(row,email_subject)
+                                plant_functions.send_email(email_subject,row)
 
                                 # Get the mail ID to delete from id_list
                                 id_to_delete = id_list[i-1]
