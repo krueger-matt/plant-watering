@@ -12,18 +12,22 @@ print datetime.datetime.now()
 def send_text():
     print 'Starting...'
 
-    row = []
+    # Add plants to output list if they need water. Send list of all plants in one email with this list
+    output = []
 
     # Checks which plants have a need_water flag set to 1 and then sends one text per plant that needs water
     conn = sqlite3.connect('plants.db')
     cursor = conn.execute("SELECT plant_name FROM watering_schedule WHERE need_water = 1 AND ignore = 0")
-    for row in cursor:
-        # Create email subject to pass to plant_functions
-        email_subject = 'Water ' + row[0]
-        # Call plant_functions and pass row and email subject
-        plant_functions.send_email(email_subject,row)
 
-    if len(row) == 0:
+    # Add items to dictionary
+    for row in cursor:
+        output.append(row[0])
+
+    if len(output) > 0:
+        email_subject = "Plants to water:"
+        email_body = ', '.join(output)
+        plant_functions.send_email(email_subject,email_body)    
+    else:
         print 'No plants need watering'
 
     conn.close()

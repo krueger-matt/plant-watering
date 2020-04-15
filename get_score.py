@@ -10,11 +10,6 @@ import plant_functions
 
 print datetime.datetime.now()
 
-FROM_EMAIL  = config.FROM_EMAIL
-FROM_PWD    = config.FROM_PWD
-SMTP_SERVER = config.SMTP_SERVER
-SMTP_PORT   = config.SMTP_PORT
-
 detach_dir = plant_functions.attachments_dir()
 
 def get_score():
@@ -55,10 +50,12 @@ def get_score():
                         if text.strip().lower() == "get score":
 
                             # Create email subject to pass to plant_functions
-                            email_subject = plant_functions.get_overall_score()
+                            email_body = plant_functions.get_overall_score()
+                            email_body = str(email_body)
+                            email_subject = "Overall score:"
 
                             # Call plant_functions and pass row and email subject
-                            plant_functions.send_email(email_subject)
+                            plant_functions.send_email(email_subject,email_body)
 
                             # Get the mail ID to delete from id_list
                             id_to_delete = id_list[i-1]

@@ -12,11 +12,6 @@ import plant_functions
 
 print datetime.datetime.now()
 
-FROM_EMAIL  = config.FROM_EMAIL
-FROM_PWD    = config.FROM_PWD
-SMTP_SERVER = config.SMTP_SERVER
-SMTP_PORT   = config.SMTP_PORT
-
 detach_dir = plant_functions.attachments_dir()
 
 # Function to go to Gmail and read emails
@@ -28,7 +23,7 @@ def check_status():
     conn = sqlite3.connect('plants.db')
 
 # Query to get plant names and days until next water
-    cursor = conn.execute("SELECT plant_name, schedule_in_days - days_since_last_water FROM watering_schedule")
+    cursor = conn.execute("SELECT plant_name, schedule_in_days - days_since_last_water FROM watering_schedule WHERE ignore = 0")
 
 # Hold query in dictionary
     output = {}
@@ -49,7 +44,7 @@ def check_status():
     # If this is true, that means there are emails in the inbox. If not, then no mail!
     if len(mail_ids) > 0:
 
-        id_list = mail_ids.split()   
+        id_list = mail_ids.split()
         first_email_id = int(id_list[0])
         latest_email_id = int(id_list[-1])
 
@@ -86,20 +81,26 @@ def check_status():
                             status = output.get(plant)
 
                             # Create email subject to pass to plant_functions
-                            email_subject = "Water " + plant + " in " + str(status) + " days"
+                            email_subject = 'Status:'
+                            email_body = "Water " + plant + " in " + str(status) + " days"
                             # Call plant_functions and pass row and email subject
-                            plant_functions.send_email(email_subject,row)
+                            plant_functions.send_email(email_subject,email_body,row)
 
-                            # Get the mail ID to delete from id_list
-                            id_to_delete = id_list[i-1]
+                        elif text.strip().lower() == "all status":
+                            email_subject = 'Overall Status:'
+                            email_body = "Water:\n" + "".join(" in ".join((str(k),(str(v)+' days' + '\n'))) for k,v in output.items())
+                            plant_functions.send_email(email_subject,email_body,row)
 
-                            print 'Email ID list: ' + ', '.join(id_list)
+                        # Get the mail ID to delete from id_list
+                        id_to_delete = id_list[i-1]
 
-                            print 'Email ID to delete: ' + str(id_to_delete)
+                        print 'Email ID list: ' + ', '.join(id_list)
 
-                            # Delete the email
-                            mail.store(str(id_to_delete), '+X-GM-LABELS', '\\Trash')
-                            print 'Email deleted'
+                        print 'Email ID to delete: ' + str(id_to_delete)
+
+                        # Delete the email
+                        mail.store(str(id_to_delete), '+X-GM-LABELS', '\\Trash')
+                        print 'Email deleted'
 
                     else:
                         print "checker should be -1. Is it? checker: " + str(checker)

@@ -3,6 +3,7 @@ import imaplib
 import email as emaily
 import os
 import sqlite3
+import string
 
 import config
 
@@ -18,36 +19,30 @@ def attachments_dir():
 
 # Login to email, prepare message, and send mail
 # Takes row which is the plant name from the SQL query and email_subect which is defined in whichever script calls this one
-def send_email(email_subject,row=None):
+def send_email(email_subject,email_body,row=None):
 
-	FROM_EMAIL  = config.FROM_EMAIL
-	FROM_PWD    = config.FROM_PWD
 	SMTP_SERVER = config.SMTP_SERVER
 	SMTP_PORT   = config.SMTP_PORT
 
-	TO = config.TO # Phone number goes here as a string
-	SUBJECT = email_subject
-	email = SUBJECT
-	print SUBJECT
+	print 'Email Subject: ' + email_subject
+	print 'Email Body: ' + email_body
 
-	# Prepare actual message
-	message = """\
-    From: %s
-    To: %s
-    Subject: %s
-
-    %s
-    """ % (FROM_EMAIL, ", ".join(TO), SUBJECT, email)
+	BODY = string.join((
+	        "From: %s" % config.FROM_EMAIL,
+	        "To: %s" % config.TO,
+	        "Subject: %s" % email_subject ,
+	        "",
+	        email_body
+	        ), "\r\n")
 
 	server = smtplib.SMTP('smtp.gmail.com', 587)
 	server.ehlo()
 	server.starttls()
 	server.ehlo()
-	server.login(FROM_EMAIL, FROM_PWD)
-	server.sendmail(FROM_EMAIL, TO, message)
+	server.login(config.FROM_EMAIL, config.FROM_PWD)
+	server.sendmail(config.FROM_EMAIL, config.TO, BODY)
 	server.quit()
 	print 'Text sent'
-
 
 
 # Email login for read_email.py and check_status.py
