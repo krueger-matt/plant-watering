@@ -39,7 +39,7 @@ Note that to have Gmail send a message to a phone number, you need to format it 
   * Sprint: phonenumber@messaging.sprintpcs.com
   * T-Mobile: phonenumber@tmomail.net
 
-Usage and Features:
+#### Usage and Features:
   * Add a plant by texting "Add Plant: plant_name, schedule_in_days"
     * Example: Add Plant: Palm Tree, 17
   * Confirm a plant has been watered by texting "plant_name watered"
