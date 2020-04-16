@@ -38,3 +38,16 @@ Note that to have Gmail send a message to a phone number, you need to format it 
   * AT&T: phonenumber@txt.att.net
   * Sprint: phonenumber@messaging.sprintpcs.com
   * T-Mobile: phonenumber@tmomail.net
+
+Usage and Features:
+  * Add a plant by texting "Add Plant: plant_name, schedule_in_days"
+    * Example: Add Plant: Palm Tree, 17
+  * Confirm a plant has been watered by texting "plant_name watered"
+    * Example: Lemon Tree watered
+    * Note: You can only water a plant that has indicated it needs to be watered
+  * Check status of one plant by texting "plant_name status"
+    * Example: Lemon Tree status
+  * Check status of all plants by texting "All status"
+  * Get list of plants that need to be watered in the next 7 days by texting "7 day status"
+  * Get score of users (how many plants each user has watered) by texting "Get Score"
+
