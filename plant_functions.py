@@ -1,6 +1,6 @@
 import smtplib
 import imaplib
-import email as emaily
+import email
 import os
 import sqlite3
 import string
@@ -20,10 +20,6 @@ def attachments_dir():
 # Login to email, prepare message, and send mail
 # Takes row which is the plant name from the SQL query and email_subect which is defined in whichever script calls this one
 def send_email(email_subject,email_body,row=None):
-
-	SMTP_SERVER = config.SMTP_SERVER
-	SMTP_PORT   = config.SMTP_PORT
-
 	print 'Email Subject: ' + email_subject
 	print 'Email Body: ' + email_body
 
@@ -47,19 +43,13 @@ def send_email(email_subject,email_body,row=None):
 
 # Email login for read_email.py and check_status.py
 def email_login():
-	FROM_EMAIL  = config.FROM_EMAIL
-	FROM_PWD    = config.FROM_PWD
-	SMTP_SERVER = config.SMTP_SERVER
-
-	# Login to email
 	try:
 		print "Logging into email..."
-		mail = imaplib.IMAP4_SSL(SMTP_SERVER)
-		mail.login(FROM_EMAIL,FROM_PWD)
+		mail = imaplib.IMAP4_SSL(config.SMTP_SERVER)
+		mail.login(config.FROM_EMAIL,config.FROM_PWD)
 
 		return mail
 
-	# Failed login
 	except Exception, e:
 		print str(e)
 		print "Failed to login!"
@@ -70,7 +60,7 @@ def email_login():
 
 # Parse emails in inbox. Used in read_email.py and check_status.py
 def email_parse(detach_dir,response_part):
-    msg = emaily.message_from_string(response_part[1])
+    msg = email.message_from_string(response_part[1])
     email_from = msg['from']
     date = msg["Date"]
 
@@ -97,11 +87,13 @@ def email_parse(detach_dir,response_part):
             os.remove(filePath)
 
             if text.find(' watered') > 0:
-            	checker = text.find(' watered')
+            	checker = 'watered'
             elif text.find(' status') > 0:
-            	checker = text.find(' status')
+            	checker = 'status'
             elif text.lower().find('get score') >= 0:
-            	checker = text.lower().find('get score')
+            	checker = 'get score'
+            elif text.lower().startswith('add plant'):
+            	checker = 'add plant'
             else:
             	checker = -1
 

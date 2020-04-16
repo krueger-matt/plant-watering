@@ -43,7 +43,7 @@ def get_score():
                     text = email_parse[1]
                     email_from = email_parse[2]
 
-                    if checker >= 0:
+                    if checker == 'get score':
 
                         print "checker: " + str(checker)
 
@@ -69,7 +69,7 @@ def get_score():
                             print 'Email deleted'
 
                     else:
-                        print "checker should be -1. Is it? checker: " + str(checker)
+                        print "No get score emails in inbox"
 
         print "Done"
 

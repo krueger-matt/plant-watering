@@ -64,7 +64,7 @@ def check_status():
                     text = email_parse[1]
                     email_from = email_parse[2]
 
-                    if checker > 0:
+                    if checker == 'status':
 
                         print "checker: " + str(checker)
 
@@ -90,6 +90,15 @@ def check_status():
                             email_subject = 'Overall Status:'
                             email_body = "Water:\n" + "".join(" in ".join((str(k),(str(v)+' days' + '\n'))) for k,v in output.items())
                             plant_functions.send_email(email_subject,email_body,row)
+                        elif text.strip().lower() == "7 day status":
+                            seven_day_dict = {}
+                            for k,v in output.items():
+                                if v <= 7:
+                                    seven_day_dict[k] = v
+
+                            email_subject = 'Next 7 Days:'
+                            email_body = "Water:\n" + "".join(" in ".join((str(k),(str(v)+' days' + '\n'))) for k,v in seven_day_dict.items())
+                            plant_functions.send_email(email_subject,email_body,row)
 
                         # Get the mail ID to delete from id_list
                         id_to_delete = id_list[i-1]
@@ -103,7 +112,7 @@ def check_status():
                         print 'Email deleted'
 
                     else:
-                        print "checker should be -1. Is it? checker: " + str(checker)
+                        print "No status emails in inbox"
 
         conn.close()
         print "Done"

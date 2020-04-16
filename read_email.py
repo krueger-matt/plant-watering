@@ -6,7 +6,6 @@
 # It knows a plant was watered if the user who got the text sends a reply with "Plant Name watered" in that exact syntax.
 # If it finds an email saying a plant was watered, it will send a text confirming the action. This is useful
 # for situations when multiple people are getting the plant watering texts.
-# Make sure the TO = [] line is updated with a phone number for the text to be sent to.
 
 import time
 import os
@@ -17,11 +16,6 @@ import config
 import plant_functions
 
 print datetime.datetime.now()
-
-FROM_EMAIL  = config.FROM_EMAIL
-FROM_PWD    = config.FROM_PWD
-SMTP_SERVER = config.SMTP_SERVER
-SMTP_PORT   = config.SMTP_PORT
 
 detach_dir = plant_functions.attachments_dir()
 
@@ -71,7 +65,7 @@ def read_email_from_gmail():
                         text = email_parse[1]
                         email_from = email_parse[2]
 
-                        if checker > 0:
+                        if checker == 'watered':
 
                             print "Checker: " + str(checker)
 
@@ -101,9 +95,10 @@ def read_email_from_gmail():
                                 conn.commit()
 
                                 # Create email subject to pass to plant_functions
-                                email_subject = row[0] + ' watered'
+                                email_subject = 'Updates:'
+                                email_body = row[0] + ' watered'
                                 # Call plant_functions and pass row and email subject
-                                plant_functions.send_email(email_subject,row)
+                                plant_functions.send_email(email_subject,email_body,row)
 
                                 # Get the mail ID to delete from id_list
                                 id_to_delete = id_list[i-1]
@@ -117,7 +112,7 @@ def read_email_from_gmail():
                                 print 'Email deleted'
 
                         else:
-                            print "checker should be -1. Is it? checker: " + str(checker)
+                            print "No watered emails in inbox"
 
         conn.close()
         print "Done"
