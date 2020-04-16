@@ -8,6 +8,9 @@ Create a new Gmail account and allow less secure apps to access it
 Create (or modify the one provided) a SQLite database to keep track of your plants
 
 The database has three tables:
+  * watering_schedule   - A list of all the plants, their watering schedule, and if they need water
+  * score_keeper        - A list of all the times someone has texted that they have watered a plant
+  * emails              - A list of users
 
 The fields in the watering_schedule table are:
   * id integer primary key,
