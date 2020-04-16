@@ -1,8 +1,11 @@
 # This script runs in the early morning. It updates the need_water field if needed and updates the days_since_last_water field on all plants
 
 import sqlite3
+import datetime
 
 def maintenance():
+    print datetime.datetime.now()
+    
     conn = sqlite3.connect('plants.db')
 
     # If days_since_last_water - schedule_in_days is > 0 then we need to update the need_water bool to 1
