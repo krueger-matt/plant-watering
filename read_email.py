@@ -17,7 +17,9 @@ import plant_functions
 
 print datetime.datetime.now()
 
-detach_dir = plant_functions.attachments_dir()
+directory_name = 'attachments'
+
+detach_dir = plant_functions.attachments_dir(directory_name)
 
 # Function to go to Gmail and read emails. Checks to find ones with text that = 'Watered'
 # If there is a text saying "Plant Name watered" then update datebase column last_watered with current datetime
@@ -30,12 +32,9 @@ def read_email_from_gmail():
     conn = sqlite3.connect('plants.db')
     cursor = conn.execute("SELECT plant_name FROM watering_schedule WHERE need_water = 1 AND ignore = 0")
 
-    mail = plant_functions.email_login()
-
-    mail.select('inbox')
-    type, data = mail.search(None, 'ALL')
-    mail_ids = data[0]
-
+    email_login = plant_functions.email_login()
+    mail = email_login[0]
+    mail_ids = email_login[1]
 
     # If this is true, that means there are emails in the inbox. If not, then no mail!
     if len(mail_ids) > 0:
@@ -60,7 +59,7 @@ def read_email_from_gmail():
                 for response_part in data:
                     if isinstance(response_part, tuple):
 
-                        email_parse = plant_functions.email_parse(detach_dir,response_part)
+                        email_parse = plant_functions.email_parse(detach_dir,response_part,directory_name)
                         checker = email_parse[0]
                         text = email_parse[1]
                         email_from = email_parse[2]
