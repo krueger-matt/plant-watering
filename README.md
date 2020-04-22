@@ -32,7 +32,7 @@ The fields in the emails table are:
   * name varchar(765)
 
 Note that to have Gmail send a message to a phone number, you need to format it differently for different carriers:
-  * Verizon: phonenumber@vtext.com
+  * Verizon: phonenumber@vzwpix.com
   * AT&T: phonenumber@txt.att.net
   * Sprint: phonenumber@messaging.sprintpcs.com
   * T-Mobile: phonenumber@tmomail.net

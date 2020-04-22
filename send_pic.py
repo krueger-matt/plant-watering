@@ -1,7 +1,9 @@
+# Send a picture of a requested plant to user
 
 import sqlite3
 import os
 
+import config
 import plant_functions
 
 directory_name = 'attachments'
@@ -11,7 +13,7 @@ detach_dir = plant_functions.attachments_dir(directory_name)
 def send_pic():
 
     row = []
-    conn = sqlite3.connect('plants.db')
+    conn = sqlite3.connect(config.DB_NAME)
 
 # Query to get plant names and days until next water
     cursor = conn.execute("SELECT plant_name, schedule_in_days - days_since_last_water FROM watering_schedule WHERE ignore = 0")
@@ -68,16 +70,7 @@ def send_pic():
                         	print 'No plant with that name in pics directory'
                         	plant_functions.send_email('Oh No!', 'There is no plant with that name in your saved pics!')
 
-                    	# Get the mail ID to delete from id_list
-                        id_to_delete = id_list[i-1]
-
-                        print 'Email ID list: ' + ', '.join(id_list)
-
-                        print 'Email ID to delete: ' + str(id_to_delete)
-
-                        # Delete the email
-                        mail.store(str(id_to_delete), '+X-GM-LABELS', '\\Trash')
-                        print 'Email deleted'
+                        plant_functions.delete_emails(id_list,i,mail)
 
                     else:
                         print "No add plant emails in inbox"

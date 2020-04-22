@@ -3,10 +3,12 @@
 import sqlite3
 import datetime
 
+import config
+
 def maintenance():
     print datetime.datetime.now()
     
-    conn = sqlite3.connect('plants.db')
+    conn = sqlite3.connect(config.DB_NAME)
 
     # If days_since_last_water - schedule_in_days is > 0 then we need to update the need_water bool to 1
     cursor = conn.execute("SELECT plant_name, days_since_last_water - schedule_in_days FROM watering_schedule WHERE ignore = 0")

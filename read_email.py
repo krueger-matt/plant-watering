@@ -21,7 +21,7 @@ directory_name = 'attachments'
 
 detach_dir = plant_functions.attachments_dir(directory_name)
 
-# Function to go to Gmail and read emails. Checks to find ones with text that = 'Watered'
+# Function to go to Gmail and read emails. Checks to find ones with text that = 'watered'
 # If there is a text saying "Plant Name watered" then update datebase column last_watered with current datetime
 # After database is updated, send text confirming to all users that the plant has been watered
 # Update score_keeper table with plant_id, email, and date everytime a plant is successfully watered. This can be used
@@ -29,7 +29,7 @@ detach_dir = plant_functions.attachments_dir(directory_name)
 def read_email_from_gmail():
 
     row = []
-    conn = sqlite3.connect('plants.db')
+    conn = sqlite3.connect(config.DB_NAME)
     cursor = conn.execute("SELECT plant_name FROM watering_schedule WHERE need_water = 1 AND ignore = 0")
 
     email_login = plant_functions.email_login()
@@ -99,16 +99,7 @@ def read_email_from_gmail():
                                 # Call plant_functions and pass row and email subject
                                 plant_functions.send_email(email_subject,email_body,row)
 
-                                # Get the mail ID to delete from id_list
-                                id_to_delete = id_list[i-1]
-
-                                print 'Email ID list: ' + ', '.join(id_list)
-
-                                print 'Email ID to delete: ' + str(id_to_delete)
-
-                                # Delete the email
-                                mail.store(str(id_to_delete), '+X-GM-LABELS', '\\Trash')
-                                print 'Email deleted'
+                                plant_functions.delete_emails(id_list,i,mail)
 
                         else:
                             print "No watered emails in inbox"

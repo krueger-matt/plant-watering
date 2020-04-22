@@ -1,11 +1,10 @@
+# Add a picture of a plant to pics folder
+# Update db 'has_pic' column to 1 when a picture is added to the pics folder
 
 import time
 import os
 import sqlite3
 import datetime
-import smtplib
-import imaplib
-import email
 
 import config
 import plant_functions
@@ -41,21 +40,19 @@ def add_pic():
                 if isinstance(response_part, tuple):
                     email_parse = plant_functions.email_parse(detach_dir,response_part,directory_name)
                     checker = email_parse[0]
-                    text = email_parse[1]
-                    email_from = email_parse[2]
+                    # text = email_parse[1]
+                    # email_from = email_parse[2]
+                    plant_name = email_parse[3]
 
                     if checker == 'add pic':
+                        plant_functions.delete_emails(id_list,i,mail)
 
-                        # Get the mail ID to delete from id_list
-                        id_to_delete = id_list[i-1]
+                        conn = sqlite3.connect(config.DB_NAME)
+                        conn.execute("update watering_schedule set has_pic = 1 where plant_name = '" + plant_name + "'")
+                        conn.commit()
+                        conn.close()
 
-                        print 'Email ID list: ' + ', '.join(id_list)
-
-                        print 'Email ID to delete: ' + str(id_to_delete)
-
-                        # Delete the email
-                        mail.store(str(id_to_delete), '+X-GM-LABELS', '\\Trash')
-                        print 'Email deleted'
+                        print 'DB has_pic column has been set to 1 for ' + plant_name
 
         print "Done"
 

@@ -4,6 +4,7 @@
 import sqlite3
 import datetime
 
+import config
 import plant_functions
 
 print datetime.datetime.now()
@@ -16,7 +17,7 @@ def send_text():
     output = []
 
     # Checks which plants have a need_water flag set to 1 and then sends one text per plant that needs water
-    conn = sqlite3.connect('plants.db')
+    conn = sqlite3.connect(config.DB_NAME)
     cursor = conn.execute("SELECT plant_name FROM watering_schedule WHERE need_water = 1 AND ignore = 0")
 
     # Add items to dictionary

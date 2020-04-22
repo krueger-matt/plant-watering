@@ -109,6 +109,7 @@ def email_parse(detach_dir,response_part,directory_name):
 	email_from = msg['from']
 	date = msg["Date"]
 	imagePath = ''
+	plant_name = ''
 
 	# Download attachments - used for all calls of function
 	for part in msg.walk():
@@ -138,11 +139,11 @@ def email_parse(detach_dir,response_part,directory_name):
 	# Pic related stuff
 	if filePath == './pics/text_1.txt':
 		start_text = text.find(':') + 2
-		plant_name = text[start_text:]
+		plant_name = text[start_text:].strip()
 
 	if os.path.isfile(imagePath):
 		print './pics/' + plant_name.strip() + '.jpg'
-		os.rename(imagePath,'./pics/' + plant_name.strip() + '.jpg')
+		os.rename(imagePath,'./pics/' + plant_name + '.jpg')
 
 	print "Email attachment text: " + str(text)
 
@@ -164,7 +165,7 @@ def email_parse(detach_dir,response_part,directory_name):
 	else:
 		checker = -1
 
-	return checker, text, email_from
+	return checker, text, email_from, plant_name
 
 
 
@@ -173,7 +174,7 @@ def get_overall_score():
 
 	score_list = []
 
-	conn = sqlite3.connect('plants.db')
+	conn = sqlite3.connect(config.DB_NAME)
 	cursor = conn.execute("""SELECT e.name, count(sk.id) 
 							 FROM score_keeper sk 
 							 JOIN emails e ON sk.email = e.email 
@@ -186,3 +187,17 @@ def get_overall_score():
 		score_list.append(str(row[0]) + ": " + str(row[1]))
 
 	return score_list
+
+
+
+def delete_emails(id_list,i,mail):
+	# Get the mail ID to delete from id_list
+	id_to_delete = id_list[i-1]
+
+	print 'Email ID list: ' + ', '.join(id_list)
+
+	print 'Email ID to delete: ' + str(id_to_delete)
+
+	# Delete the email
+	mail.store(str(id_to_delete), '+X-GM-LABELS', '\\Trash')
+	print 'Email deleted'

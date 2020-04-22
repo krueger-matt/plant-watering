@@ -7,6 +7,8 @@ import os
 import sqlite3
 import datetime
 
+import operator
+
 import config
 import plant_functions
 
@@ -22,7 +24,7 @@ detach_dir = plant_functions.attachments_dir(directory_name)
 def check_status():
 
     row = []
-    conn = sqlite3.connect('plants.db')
+    conn = sqlite3.connect(config.DB_NAME)
 
 # Query to get plant names and days until next water
     cursor = conn.execute("SELECT plant_name, schedule_in_days - days_since_last_water FROM watering_schedule WHERE ignore = 0")
@@ -33,6 +35,8 @@ def check_status():
 # Add items to dictionary
     for row in cursor:
         output[str(row[0])] = row[1]
+
+    sorted_output = sorted(output.items(), key=operator.itemgetter(1))
 
 # Create list of plant names from 'output' dictionary
     plant_list = output.keys()
@@ -83,33 +87,29 @@ def check_status():
                             # Create email subject to pass to plant_functions
                             email_subject = 'Status:'
                             email_body = "Water " + plant + " in " + str(status) + " days"
-                            # Call plant_functions and pass row and email subject
-                            plant_functions.send_email(email_subject,email_body,row)
 
                         elif text.strip().lower() == "all status":
                             email_subject = 'Overall Status:'
-                            email_body = "Water:\n" + "".join(" in ".join((str(k),(str(v)+' days' + '\n'))) for k,v in output.items())
-                            plant_functions.send_email(email_subject,email_body,row)
+                            email_body = 'Water:\n'
+                            for plant in sorted_output:
+                                email_body = email_body + str(plant[0]) + ' in ' + str(plant[1]) + ' days\n'
+
                         elif text.strip().lower() == "7 day status":
                             seven_day_dict = {}
                             for k,v in output.items():
                                 if v <= 7:
                                     seven_day_dict[k] = v
 
+                            sorted_seven_day_dict = sorted(seven_day_dict.items(), key=operator.itemgetter(1))
+
                             email_subject = 'Next 7 Days:'
-                            email_body = "Water:\n" + "".join(" in ".join((str(k),(str(v)+' days' + '\n'))) for k,v in seven_day_dict.items())
-                            plant_functions.send_email(email_subject,email_body,row)
+                            email_body = 'Water:\n'
+                            for plant in sorted_seven_day_dict:
+                                email_body = email_body + str(plant[0]) + ' in ' + str(plant[1]) + ' days\n'
+                        
+                        plant_functions.send_email(email_subject,email_body,row)
 
-                        # Get the mail ID to delete from id_list
-                        id_to_delete = id_list[i-1]
-
-                        print 'Email ID list: ' + ', '.join(id_list)
-
-                        print 'Email ID to delete: ' + str(id_to_delete)
-
-                        # Delete the email
-                        mail.store(str(id_to_delete), '+X-GM-LABELS', '\\Trash')
-                        print 'Email deleted'
+                        plant_functions.delete_emails(id_list,i,mail)
 
                     else:
                         print "No status emails in inbox"

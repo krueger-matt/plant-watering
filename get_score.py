@@ -57,16 +57,7 @@ def get_score():
                             # Call plant_functions and pass row and email subject
                             plant_functions.send_email(email_subject,email_body)
 
-                            # Get the mail ID to delete from id_list
-                            id_to_delete = id_list[i-1]
-
-                            print 'Email ID list: ' + ', '.join(id_list)
-
-                            print 'Email ID to delete: ' + str(id_to_delete)
-
-                            # Delete the email
-                            mail.store(str(id_to_delete), '+X-GM-LABELS', '\\Trash')
-                            print 'Email deleted'
+                            plant_functions.delete_emails(id_list,i,mail)
 
                     else:
                         print "No get score emails in inbox"

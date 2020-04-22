@@ -5,6 +5,7 @@
 import sqlite3
 import datetime
 
+import config
 import plant_functions
 
 print datetime.datetime.now()
@@ -22,7 +23,7 @@ def add_plant():
     # If this is true, that means there are emails in the inbox. If not, then no mail!
     if len(mail_ids) > 0:
 
-        conn = sqlite3.connect('plants.db')
+        conn = sqlite3.connect(config.DB_NAME)
 
         id_list = mail_ids.split()
         first_email_id = int(id_list[0])
@@ -68,16 +69,7 @@ def add_plant():
                             # Call plant_functions and pass row and email subject
                             plant_functions.send_email(email_subject,email_body)
 
-                        # Get the mail ID to delete from id_list
-                        id_to_delete = id_list[i-1]
-
-                        print 'Email ID list: ' + ', '.join(id_list)
-
-                        print 'Email ID to delete: ' + str(id_to_delete)
-
-                        # Delete the email
-                        mail.store(str(id_to_delete), '+X-GM-LABELS', '\\Trash')
-                        print 'Email deleted'
+                        plant_functions.delete_emails(id_list,i,mail)
 
                     else:
                         print "No add plant emails in inbox"
