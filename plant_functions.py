@@ -8,8 +8,14 @@ from email import encoders
 import os
 import sqlite3
 import string
+import datetime
 
 import config
+
+def current_time():
+	return datetime.datetime.now()
+
+
 
 # Create a directory for attachments/pics
 def attachments_dir(directory_name):
@@ -24,8 +30,8 @@ def attachments_dir(directory_name):
 # Login to email, prepare message, and send mail
 # Takes row which is the plant name from the SQL query and email_subect which is defined in whichever script calls this one
 def send_email_old(email_subject,email_body,row=None):
-	print 'Email Subject: ' + email_subject
-	print 'Email Body: ' + email_body
+	print ('Email Subject: ' + email_subject)
+	print ('Email Body: ' + email_body)
 
 	BODY = string.join((
 	        "From: %s" % config.FROM_EMAIL,
@@ -42,7 +48,7 @@ def send_email_old(email_subject,email_body,row=None):
 	server.login(config.FROM_EMAIL, config.FROM_PWD)
 	server.sendmail(config.FROM_EMAIL, config.TO, BODY)
 	server.quit()
-	print 'Text sent'
+	print ('Text sent')
 
 
 
@@ -85,7 +91,7 @@ def send_email(email_subject,email_body,row=None,file_location=None):
 # Email login for read_email.py and check_status.py
 def email_login():
 	try:
-		print "Logging into email..."
+		print ("Logging into email...")
 		mail = imaplib.IMAP4_SSL(config.SMTP_SERVER)
 		mail.login(config.FROM_EMAIL,config.FROM_PWD)
 
@@ -95,21 +101,24 @@ def email_login():
 
 		return mail, mail_ids
 
-	except Exception, e:
-		print str(e)
-		print "Failed to login!"
-		print "Program terminating!"
+	except Exception as e:
+		print (str(e))
+		print ("Failed to login!")
+		print ("Program terminating!")
 		quit()
 
 
 
 # Parse emails in inbox. Used in read_email.py and check_status.py
 def email_parse(detach_dir,response_part,directory_name):
-	msg = email.message_from_string(response_part[1])
+	# msg = email.message_from_string(str(response_part[1]))
+	msg = email.message_from_bytes(response_part[1])
 	email_from = msg['from']
 	date = msg["Date"]
 	imagePath = ''
 	plant_name = ''
+	filePath = ''
+	text = ''
 
 	# Download attachments - used for all calls of function
 	for part in msg.walk():
@@ -126,15 +135,11 @@ def email_parse(detach_dir,response_part,directory_name):
 				fp.write(part.get_payload(decode=True))
 				fp.close()
 				fp = open(filePath, 'r')
-				text = fp.read()
+				if filePath.find('.txt') >= 0:
+					text = str(fp.read())
 
 			if filePath.find('.jpg') >= 0:
 				imagePath = filePath
-				# print "hi"
-				# print filePath
-				# print filePath.find('.jpg')
-			# else:
-			# 	text = fp.read()
 
 	# Pic related stuff
 	if filePath == './pics/text_1.txt':
@@ -142,10 +147,10 @@ def email_parse(detach_dir,response_part,directory_name):
 		plant_name = text[start_text:].strip()
 
 	if os.path.isfile(imagePath):
-		print './pics/' + plant_name.strip() + '.jpg'
+		print ('./pics/' + plant_name.strip() + '.jpg')
 		os.rename(imagePath,'./pics/' + plant_name + '.jpg')
 
-	print "Email attachment text: " + str(text)
+	print ("Email attachment text: " + str(text))
 
 	# Delete attachments
 	os.remove(filePath)
@@ -180,10 +185,10 @@ def get_overall_score():
 							 JOIN emails e ON sk.email = e.email 
 							 GROUP BY 1 ORDER BY 2 DESC""")
 
-	print 'Overall score:'
+	print ('Overall score:')
 
 	for row in cursor:
-		print str(row[0]) + ": " + str(row[1])
+		print (str(row[0]) + ": " + str(row[1]))
 		score_list.append(str(row[0]) + ": " + str(row[1]))
 
 	return score_list
@@ -194,10 +199,10 @@ def delete_emails(id_list,i,mail):
 	# Get the mail ID to delete from id_list
 	id_to_delete = id_list[i-1]
 
-	print 'Email ID list: ' + ', '.join(id_list)
+	print ('Email ID list: ' + ', '.join(id_list))
 
-	print 'Email ID to delete: ' + str(id_to_delete)
+	print ('Email ID to delete: ' + str(id_to_delete))
 
 	# Delete the email
 	mail.store(str(id_to_delete), '+X-GM-LABELS', '\\Trash')
-	print 'Email deleted'
+	print ('Email deleted')

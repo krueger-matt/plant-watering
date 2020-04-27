@@ -1,15 +1,12 @@
 # Add a picture of a plant to pics folder
 # Update db 'has_pic' column to 1 when a picture is added to the pics folder
 
-import time
-import os
 import sqlite3
-import datetime
 
 import config
 import plant_functions
 
-print datetime.datetime.now()
+print (plant_functions.current_time())
 
 directory_name = 'pics'
 
@@ -24,16 +21,16 @@ def add_pic():
     # If this is true, that means there are emails in the inbox. If not, then no mail!
     if len(mail_ids) > 0:
 
-        id_list = mail_ids.split()
+        id_list = mail_ids.decode().split()
         first_email_id = int(id_list[0])
         latest_email_id = int(id_list[-1])
 
         # Loop through all emails starting with earliest ID and incrementing by 1 to highest email ID
         for i in range(first_email_id,latest_email_id + 1, 1):
 
-            print "i: " + str(i)
+            print ("i: " + str(i))
 
-            typ, data = mail.fetch(i, '(RFC822)' )
+            typ, data = mail.fetch(str(i), '(RFC822)' )
 
             # Grab email data including from, subject, and time
             for response_part in data:
@@ -48,16 +45,16 @@ def add_pic():
                         plant_functions.delete_emails(id_list,i,mail)
 
                         conn = sqlite3.connect(config.DB_NAME)
-                        conn.execute("update watering_schedule set has_pic = 1 where plant_name = '" + plant_name + "'")
+                        conn.execute("UPDATE watering_schedule SET has_pic = 1 WHERE plant_name = '" + plant_name + "'")
                         conn.commit()
                         conn.close()
 
-                        print 'DB has_pic column has been set to 1 for ' + plant_name
+                        print ('DB has_pic column has been set to 1 for ' + plant_name)
 
-        print "Done"
+        print ("Done")
 
     else:
-        print 'Mailbox is empty!'
+        print ('Mailbox is empty!')
 
 
 add_pic()

@@ -1,12 +1,13 @@
 # This script runs in the early morning. It updates the need_water field if needed and updates the days_since_last_water field on all plants
 
 import sqlite3
-import datetime
 
 import config
+import plant_functions
+
+print (plant_functions.current_time())
 
 def maintenance():
-    print datetime.datetime.now()
     
     conn = sqlite3.connect(config.DB_NAME)
 
@@ -15,7 +16,7 @@ def maintenance():
     for row in cursor:
         plant = row[0]
         day_diff = row[1]
-        print plant, day_diff
+        print (plant, day_diff)
         if day_diff >= 0:
                 conn.execute("update watering_schedule set need_water = 1 where plant_name = '" + plant + "'")
                 conn.commit()
@@ -24,7 +25,7 @@ def maintenance():
                 conn.commit()
 
         conn.execute("update watering_schedule set days_since_last_water = (SELECT cast(julianday('now') as int)) - (SELECT cast(julianday(last_watered) as int) from watering_schedule where plant_name = '" + plant + "') where plant_name = '" + plant + "'")
-    	conn.commit()
+        conn.commit()
 
     conn.close()
 

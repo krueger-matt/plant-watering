@@ -1,14 +1,11 @@
 # This checks if anyone has texted Get Score and responds with the current score from the score_keeper table
 
-import time
-import os
 import sqlite3
-import datetime
 
 import config
 import plant_functions
 
-print datetime.datetime.now()
+print (plant_functions.current_time())
 
 directory_name = 'attachments'
 
@@ -23,16 +20,16 @@ def get_score():
     # If this is true, that means there are emails in the inbox. If not, then no mail!
     if len(mail_ids) > 0:
 
-        id_list = mail_ids.split()   
+        id_list = mail_ids.decode().split()
         first_email_id = int(id_list[0])
         latest_email_id = int(id_list[-1])
 
         # Loop through all emails starting with earliest ID and incrementing by 1 to highest email ID
         for i in range(first_email_id,latest_email_id + 1, 1):
 
-            print "i: " + str(i)
+            print ("i: " + str(i))
 
-            typ, data = mail.fetch(i, '(RFC822)' )
+            typ, data = mail.fetch(str(i), '(RFC822)' )
 
             # Grab email data including from, subject, and time
             for response_part in data:
@@ -45,7 +42,7 @@ def get_score():
 
                     if checker == 'get score':
 
-                        print "checker: " + str(checker)
+                        print ("checker: " + str(checker))
 
                         if text.strip().lower() == "get score":
 
@@ -60,12 +57,12 @@ def get_score():
                             plant_functions.delete_emails(id_list,i,mail)
 
                     else:
-                        print "No get score emails in inbox"
+                        print ("No get score emails in inbox")
 
-        print "Done"
+        print ("Done")
 
     else:
-        print 'Mailbox is empty!'
+        print ('Mailbox is empty!')
 
 
 get_score()

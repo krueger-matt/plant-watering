@@ -1,18 +1,12 @@
-# This script runs every 10 minutes. It checks if anyone has emailed a plant name which means they want to know when it should be watered next
-# If it finds an email with a plant name, it sends a text back saying when the plant next needs water
-# Make sure the TO = [] line is updated with a phone number for the text to be sent to.
+# Check when a plant or when all plants need to be watered next
 
-import time
-import os
 import sqlite3
-import datetime
-
 import operator
 
 import config
 import plant_functions
 
-print datetime.datetime.now()
+print (plant_functions.current_time())
 
 directory_name = 'attachments'
 
@@ -48,16 +42,16 @@ def check_status():
     # If this is true, that means there are emails in the inbox. If not, then no mail!
     if len(mail_ids) > 0:
 
-        id_list = mail_ids.split()
+        id_list = mail_ids.decode().split()
         first_email_id = int(id_list[0])
         latest_email_id = int(id_list[-1])
 
         # Loop through all emails starting with earliest ID and incrementing by 1 to highest email ID
         for i in range(first_email_id,latest_email_id + 1, 1):
 
-            print "i: " + str(i)
+            print ("i: " + str(i))
 
-            typ, data = mail.fetch(i, '(RFC822)' )
+            typ, data = mail.fetch(str(i), '(RFC822)' )
 
             # Grab email data including from, subject, and time
             for response_part in data:
@@ -70,11 +64,9 @@ def check_status():
 
                     if checker == 'status':
 
-                        print "checker: " + str(checker)
+                        print ("checker: " + str(checker))
 
-                        # This neat trick finds the first instance of a string inside a list
-                        # So what we want to do is look if the email attachment has any of our plants in it
-                        # Tbis could get dicey if a plant had a very similar name another in the database
+                        # Check the status of one plant
                         if any(plant in text for plant in plant_list):
 
                             # removed_string takes the text variable, which is the email attachment, and removes the ' status' portion in order to get the plant name
@@ -88,12 +80,14 @@ def check_status():
                             email_subject = 'Status:'
                             email_body = "Water " + plant + " in " + str(status) + " days"
 
+                        # Return all plants status
                         elif text.strip().lower() == "all status":
                             email_subject = 'Overall Status:'
                             email_body = 'Water:\n'
                             for plant in sorted_output:
                                 email_body = email_body + str(plant[0]) + ' in ' + str(plant[1]) + ' days\n'
 
+                        # Return plants that need to be watering in the next 7 days
                         elif text.strip().lower() == "7 day status":
                             seven_day_dict = {}
                             for k,v in output.items():
@@ -112,13 +106,13 @@ def check_status():
                         plant_functions.delete_emails(id_list,i,mail)
 
                     else:
-                        print "No status emails in inbox"
+                        print ("No status emails in inbox")
 
         conn.close()
-        print "Done"
+        print ("Done")
 
     else:
-        print 'Mailbox is empty!'
+        print ('Mailbox is empty!')
 
 
 check_status()

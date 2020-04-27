@@ -2,16 +2,15 @@
 # that needs to be watered (based on the need_water field in the db).
 
 import sqlite3
-import datetime
 
 import config
 import plant_functions
 
-print datetime.datetime.now()
+print (plant_functions.current_time())
 
 # Check which plants need water and send a text for each plant if they need water
 def send_text():
-    print 'Starting...'
+    print ('Starting...')
 
     # Add plants to output list if they need water. Send list of all plants in one email with this list
     output = []
@@ -25,11 +24,12 @@ def send_text():
         output.append(row[0])
 
     if len(output) > 0:
+        print (output)
         email_subject = "Plants to water:"
         email_body = ', '.join(output)
         plant_functions.send_email(email_subject,email_body)    
     else:
-        print 'No plants need watering'
+        print ('No plants need watering')
 
     conn.close()
 

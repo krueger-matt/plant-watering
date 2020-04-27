@@ -3,12 +3,11 @@
 # watering_schedule table, populate the current time as last_watered, and 0 for all of the other fields
 
 import sqlite3
-import datetime
 
 import config
 import plant_functions
 
-print datetime.datetime.now()
+print (plant_functions.current_time())
 
 directory_name = 'attachments'
 
@@ -25,16 +24,16 @@ def add_plant():
 
         conn = sqlite3.connect(config.DB_NAME)
 
-        id_list = mail_ids.split()
+        id_list = mail_ids.decode().split()
         first_email_id = int(id_list[0])
         latest_email_id = int(id_list[-1])
 
         # Loop through all emails starting with earliest ID and incrementing by 1 to highest email ID
         for i in range(first_email_id,latest_email_id + 1, 1):
 
-            print "i: " + str(i)
+            print ("i: " + str(i))
 
-            typ, data = mail.fetch(i, '(RFC822)' )
+            typ, data = mail.fetch(str(i), '(RFC822)' )
 
             # Grab email data including from, subject, and time
             for response_part in data:
@@ -47,7 +46,7 @@ def add_plant():
 
                     if checker == 'add plant':
 
-                        print "checker: " + str(checker)
+                        print ("checker: " + str(checker))
 
                         if text.startswith('Add Plant:'):
                             start_text = text.find(':') + 2
@@ -58,7 +57,7 @@ def add_plant():
 
                             sql = "INSERT INTO watering_schedule (plant_name, schedule_in_days, last_watered, days_since_last_water, need_water, ignore) VALUES ('" + str(plant_name + "','" + str(schedule_in_days) + "', (SELECT datetime('now','localtime')), 0, 0, 0)")
 
-                            print sql
+                            print (sql)
 
                             cursor = conn.execute(sql)
                             conn.commit()
@@ -72,13 +71,13 @@ def add_plant():
                         plant_functions.delete_emails(id_list,i,mail)
 
                     else:
-                        print "No add plant emails in inbox"
+                        print ("No add plant emails in inbox")
 
         conn.close()
-        print "Done"
+        print ("Done")
 
     else:
-        print 'Mailbox is empty!'
+        print ('Mailbox is empty!')
 
 
 add_plant()

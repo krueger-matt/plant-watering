@@ -1,6 +1,8 @@
 # plant-watering
 Python scripts and a SQLite database to help keep track of when to water the plants
 
+All code is written for Python 3
+
 Getting started:
   * Create a new Gmail account and allow less secure apps to access it
   * Create (or modify the one provided) a SQLite database to keep track of your plants
@@ -33,8 +35,8 @@ The fields in the emails table are:
 
 Note that to have Gmail send a message to a phone number, you need to format it differently for different carriers:
   * Verizon: phonenumber@vzwpix.com
-  * AT&T: phonenumber@txt.att.net
-  * Sprint: phonenumber@messaging.sprintpcs.com
+  * AT&T: phonenumber@mms.att.net
+  * Sprint: phonenumber@pm.sprint.com
   * T-Mobile: phonenumber@tmomail.net
 
 #### Usage and Features:
