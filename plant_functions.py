@@ -27,38 +27,9 @@ def attachments_dir(directory_name):
 
 
 
-# Login to email, prepare message, and send mail
-# Takes row which is the plant name from the SQL query and email_subect which is defined in whichever script calls this one
-def send_email_old(email_subject,email_body,row=None):
-	print ('Email Subject: ' + email_subject)
-	print ('Email Body: ' + email_body)
-
-	BODY = string.join((
-	        "From: %s" % config.FROM_EMAIL,
-	        "To: %s" % config.TO,
-	        "Subject: %s" % email_subject ,
-	        "",
-	        email_body
-	        ), "\r\n")
-
-	server = smtplib.SMTP('smtp.gmail.com', 587)
-	server.ehlo()
-	server.starttls()
-	server.ehlo()
-	server.login(config.FROM_EMAIL, config.FROM_PWD)
-	server.sendmail(config.FROM_EMAIL, config.TO, BODY)
-	server.quit()
-	print ('Text sent')
-
-
-
 def send_email(email_subject,email_body,row=None,file_location=None):
-	if len(config.TO) == 1:
-		send_to_email = config.TO[0]
-	else:
-		send_to_email = ','.join(config.TO)
 
-	# file_location = './pics/Jenni Cactus.jpg'
+	send_to_email = config.TO
 
 	msg = MIMEMultipart()
 	msg['From'] =  config.FROM_EMAIL
@@ -83,7 +54,7 @@ def send_email(email_subject,email_body,row=None,file_location=None):
 	server.starttls()
 	server.login(config.FROM_EMAIL, config.FROM_PWD)
 	text = msg.as_string()
-	server.sendmail(config.FROM_EMAIL, send_to_email, text)
+	server.sendmail(config.FROM_EMAIL, msg["To"].split(","), text)
 	server.quit()
 
 
@@ -206,3 +177,4 @@ def delete_emails(id_list,i,mail):
 	# Delete the email
 	mail.store(str(id_to_delete), '+X-GM-LABELS', '\\Trash')
 	print ('Email deleted')
+
