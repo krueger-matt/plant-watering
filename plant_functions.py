@@ -29,11 +29,9 @@ def attachments_dir(directory_name):
 
 def send_email(email_subject,email_body,row=None,file_location=None):
 
-	send_to_email = config.TO
-
 	msg = MIMEMultipart()
 	msg['From'] =  config.FROM_EMAIL
-	msg['To'] = send_to_email
+	msg['To'] = config.TO
 	msg['Subject'] = email_subject
 
 	msg.attach(MIMEText(email_body, 'plain'))
@@ -142,27 +140,6 @@ def email_parse(detach_dir,response_part,directory_name):
 		checker = -1
 
 	return checker, text, email_from, plant_name
-
-
-
-# Total score from score_keeper table by user
-def get_overall_score():
-
-	score_list = []
-
-	conn = sqlite3.connect(config.DB_NAME)
-	cursor = conn.execute("""SELECT e.name, count(sk.id) 
-							 FROM score_keeper sk 
-							 JOIN emails e ON sk.email = e.email 
-							 GROUP BY 1 ORDER BY 2 DESC""")
-
-	print ('Overall score:')
-
-	for row in cursor:
-		print (str(row[0]) + ": " + str(row[1]))
-		score_list.append(str(row[0]) + ": " + str(row[1]))
-
-	return score_list
 
 
 

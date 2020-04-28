@@ -7,12 +7,25 @@ import plant_functions
 
 def get_score(text):
 
-    if text.strip().lower() == "get score":
+	if text.strip().lower() == "get score":
 
-        # Create email subject to pass to plant_functions
-        email_body = plant_functions.get_overall_score()
-        email_body = str(email_body)
-        email_subject = "Overall score:"
+		score_list = []
 
-        # Call plant_functions and pass row and email subject
-        plant_functions.send_email(email_subject,email_body)
+		conn = sqlite3.connect(config.DB_NAME)
+		cursor = conn.execute("""SELECT e.name, count(sk.id) 
+								 FROM score_keeper sk 
+								 JOIN emails e ON sk.email = e.email 
+								 GROUP BY 1 ORDER BY 2 DESC""")
+
+		print ('Overall score:')
+
+		for row in cursor:
+			print (str(row[0]) + ": " + str(row[1]))
+			score_list.append(str(row[0]) + ": " + str(row[1]))
+
+		email_body = str(score_list)
+		email_subject = "Overall score:"
+
+		plant_functions.send_email(email_subject,email_body)
+
+		conn.close()
