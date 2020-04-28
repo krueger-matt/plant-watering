@@ -7,77 +7,27 @@ import sqlite3
 import config
 import plant_functions
 
-print (plant_functions.current_time())
+def add_plant(text):
 
-directory_name = 'attachments'
-
-detach_dir = plant_functions.attachments_dir(directory_name)
-
-def add_plant():
-
-    email_login = plant_functions.email_login()
-    mail = email_login[0]
-    mail_ids = email_login[1]
-
-    # If this is true, that means there are emails in the inbox. If not, then no mail!
-    if len(mail_ids) > 0:
-
+    if text.startswith('Add Plant:'):
         conn = sqlite3.connect(config.DB_NAME)
+        start_text = text.find(':') + 2
+        end_text = text.find(',')
+        plant_name = text[start_text:end_text]
 
-        id_list = mail_ids.decode().split()
-        first_email_id = int(id_list[0])
-        latest_email_id = int(id_list[-1])
+        schedule_in_days = text[end_text + 2:]
 
-        # Loop through all emails starting with earliest ID and incrementing by 1 to highest email ID
-        for i in range(first_email_id,latest_email_id + 1, 1):
+        sql = "INSERT INTO watering_schedule (plant_name, schedule_in_days, last_watered, days_since_last_water, need_water, ignore) VALUES ('" + str(plant_name + "','" + str(schedule_in_days) + "', (SELECT datetime('now','localtime')), 0, 0, 0)")
 
-            print ("i: " + str(i))
+        print (sql)
 
-            typ, data = mail.fetch(str(i), '(RFC822)' )
+        cursor = conn.execute(sql)
+        conn.commit()
 
-            # Grab email data including from, subject, and time
-            for response_part in data:
-                if isinstance(response_part, tuple):
-
-                    email_parse = plant_functions.email_parse(detach_dir,response_part,directory_name)
-                    checker = email_parse[0]
-                    text = email_parse[1]
-                    email_from = email_parse[2]
-
-                    if checker == 'add plant':
-
-                        print ("checker: " + str(checker))
-
-                        if text.startswith('Add Plant:'):
-                            start_text = text.find(':') + 2
-                            end_text = text.find(',')
-                            plant_name = text[start_text:end_text]
-
-                            schedule_in_days = text[end_text + 2:]
-
-                            sql = "INSERT INTO watering_schedule (plant_name, schedule_in_days, last_watered, days_since_last_water, need_water, ignore) VALUES ('" + str(plant_name + "','" + str(schedule_in_days) + "', (SELECT datetime('now','localtime')), 0, 0, 0)")
-
-                            print (sql)
-
-                            cursor = conn.execute(sql)
-                            conn.commit()
-
-                            # Create email subject to pass to plant_functions
-                            email_subject = 'Plant Added:'
-                            email_body = "Added " + plant_name + " with watering schedule of " + str(schedule_in_days) + " days to plants database!"
-                            # Call plant_functions and pass row and email subject
-                            plant_functions.send_email(email_subject,email_body)
-
-                        plant_functions.delete_emails(id_list,i,mail)
-
-                    else:
-                        print ("No add plant emails in inbox")
+        # Create email subject to pass to plant_functions
+        email_subject = 'Plant Added:'
+        email_body = "Added " + plant_name + " with watering schedule of " + str(schedule_in_days) + " days to plants database!"
+        # Call plant_functions and pass row and email subject
+        plant_functions.send_email(email_subject,email_body)
 
         conn.close()
-        print ("Done")
-
-    else:
-        print ('Mailbox is empty!')
-
-
-add_plant()
