@@ -6,11 +6,11 @@ All code is written for Python 3
 Getting started:
   * Create a new Gmail account and allow less secure apps to access it
   * Create (or modify the one provided) a SQLite database to keep track of your plants
-  * Setup a schedule for for maintenance.py to run in the early mornings, send_text.py to run anytime after maintenance.py, and all other scripts to run often (every 5-10 minutes)
+  * Setup a schedule for for maintenance.py to run in the early mornings, send_text.py to run anytime after maintenance.py, email_handler.py to run every minute.
 
 The database has three tables:
   * watering_schedule   - A list of all the plants, their watering schedule, and if they need water
-  * score_keeper        - A list of all the times someone has texted that they have watered a plant
+  * score_keeper        - A list of all the times a user has texted that they have watered a plant
   * emails              - A list of users
 
 The fields in the watering_schedule table are:
