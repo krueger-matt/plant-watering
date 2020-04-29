@@ -111,7 +111,7 @@ def email_parse(detach_dir,response_part,directory_name):
 				imagePath = filePath
 
 	# Pic related stuff
-	if filePath == './pics/text_1.txt':
+	if filePath == './attachments/text_1.txt':
 		start_text = text.find(':') + 2
 		plant_name = text[start_text:].strip()
 

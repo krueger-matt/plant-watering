@@ -16,8 +16,10 @@ import check_status
 import get_score
 import add_plant
 import plant_watered
+import add_pic
+import send_pic
 
-def email_login_new():
+def email_handler():
 
 	print (plant_functions.current_time())
 	
@@ -51,6 +53,7 @@ def email_login_new():
 						checker = email_parse_results[0]
 						text = email_parse_results[1]
 						email_from = email_parse_results[2]
+						plant_name = email_parse_results[3]
 
 						print ("checker: " + str(checker))
 
@@ -66,6 +69,12 @@ def email_login_new():
 						elif checker == 'add plant':
 							add_plant.add_plant(text)
 							plant_functions.delete_emails(id_list,i,mail)
+						elif checker == 'add pic':
+							add_pic.add_pic(plant_name)
+							plant_functions.delete_emails(id_list,i,mail)
+						elif checker == 'request pic':
+							send_pic.send_pic(text)
+							plant_functions.delete_emails(id_list,i,mail)
 						else:
 							print ("No emails in inbox match the patterns accepted.")
 
@@ -80,4 +89,4 @@ def email_login_new():
 		quit()
 
 
-email_login_new()
+email_handler()

@@ -24,10 +24,9 @@ def add_plant(text):
         cursor = conn.execute(sql)
         conn.commit()
 
-        # Create email subject to pass to plant_functions
         email_subject = 'Plant Added:'
         email_body = "Added " + plant_name + " with watering schedule of " + str(schedule_in_days) + " days to plants database!"
-        # Call plant_functions and pass row and email subject
+
         plant_functions.send_email(email_subject,email_body)
 
         conn.close()
