@@ -1,3 +1,5 @@
+# This script handles all incoming emails. Set it to run every minute
+
 import smtplib
 import imaplib
 import email
@@ -18,6 +20,7 @@ import add_plant
 import plant_watered
 import add_pic
 import send_pic
+import update_schedule
 
 def email_handler():
 
@@ -31,8 +34,6 @@ def email_handler():
 		mail.select('inbox')
 		type, data = mail.search(None, 'ALL')
 		mail_ids = data[0]
-
-		# return mail, mail_ids
 
 		directory_name = 'attachments'
 		detach_dir = plant_functions.attachments_dir(directory_name)
@@ -74,6 +75,9 @@ def email_handler():
 							plant_functions.delete_emails(id_list,i,mail)
 						elif checker == 'request pic':
 							send_pic.send_pic(text)
+							plant_functions.delete_emails(id_list,i,mail)
+						elif checker == 'update schedule':
+							update_schedule.update_schedule(text)
 							plant_functions.delete_emails(id_list,i,mail)
 						else:
 							print ("No emails in inbox match the patterns accepted.")

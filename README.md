@@ -20,7 +20,9 @@ The fields in the watering_schedule table are:
   * last_watered timestamp,
   * days_since_last_water integer,
   * need_water smallint,
-  * ignore smallint
+  * ignore smallint,
+  * has_pic smallint,
+  * latin_name varchar(765)
 
 The fields in the score_keeper table are:
   * id integer primary key,
@@ -54,4 +56,6 @@ Note that to have Gmail send a message to a phone number, you need to format it 
     * Example: Request Pic: Palm Tree
   * Get list of plants that need to be watered in the next 7 days by texting "7 day status"
   * Get score of users (how many plants each user has watered) by texting "Get Score"
+  * Update a plant's watering schedule by texting "Update Schedule: plant_name, schedule_in_days"
+    * Example: Update Schedule: Palm Tree, 7
 

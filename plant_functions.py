@@ -124,9 +124,9 @@ def email_parse(detach_dir,response_part,directory_name):
 	# Delete attachments
 	os.remove(filePath)
 
-	if text.find(' watered') > 0:
+	if text.lower().find(' watered') >= 0:
 		checker = 'watered'
-	elif text.find(' status') > 0:
+	elif text.lower().find(' status') >= 0:
 		checker = 'status'
 	elif text.lower().find('get score') >= 0:
 		checker = 'get score'
@@ -136,6 +136,8 @@ def email_parse(detach_dir,response_part,directory_name):
 		checker = 'add pic'
 	elif text.lower().startswith('request pic'):
 		checker = 'request pic'
+	elif text.lower().startswith('update schedule'):
+		checker = 'update schedule'
 	else:
 		checker = -1
 
