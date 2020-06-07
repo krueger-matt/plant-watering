@@ -1,6 +1,5 @@
-# Add a plant via text
-# To use, text "Add Plant: plant_name, schedule in days" in that exact syntax. It will automatically create a row in the
-# watering_schedule table, populate the current time as last_watered, and 0 for all of the other fields
+# Update a plant's watering schedule
+# To use, text "Update Schedule: plant_name, schedule_in_days" in that exact syntax
 
 import sqlite3
 
