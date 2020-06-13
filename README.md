@@ -42,6 +42,7 @@ Note that to have Gmail send a message to a phone number, you need to format it 
   * T-Mobile: phonenumber@tmomail.net
 
 #### Usage and Features:
+  * Text "Help" to get a list of commands
   * Add a picture of a plant by texting "Add Pic: plant_name"
     * Example: Add Pic: Palm Tree
   * Add a plant by texting "Add Plant: plant_name, schedule_in_days"

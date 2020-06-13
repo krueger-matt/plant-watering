@@ -21,6 +21,7 @@ import plant_watered
 import add_pic
 import send_pic
 import update_schedule
+import get_commands
 
 def email_handler():
 
@@ -78,6 +79,9 @@ def email_handler():
 							plant_functions.delete_emails(id_list,i,mail)
 						elif checker == 'update schedule':
 							update_schedule.update_schedule(text)
+							plant_functions.delete_emails(id_list,i,mail)
+						elif checker == 'help':
+							get_commands.help(text)
 							plant_functions.delete_emails(id_list,i,mail)
 						else:
 							print ("No emails in inbox match the patterns accepted.")

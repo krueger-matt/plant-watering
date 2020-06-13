@@ -138,6 +138,8 @@ def email_parse(detach_dir,response_part,directory_name):
 		checker = 'request pic'
 	elif text.lower().startswith('update schedule'):
 		checker = 'update schedule'
+	elif text.lower().startswith('help'):
+		checker = 'help'
 	else:
 		checker = -1
 
