@@ -9,6 +9,9 @@ import plant_functions
 
 def check_status(text):
 
+# exit_code is used to skip the send_email function if needed. 0 means normal and sends email. Anything else will skip that step
+    exit_code = 0
+
     row = []
     conn = sqlite3.connect(config.DB_NAME)
 
@@ -61,7 +64,12 @@ def check_status(text):
         email_body = 'Water:\n'
         for plant in sorted_seven_day_dict:
             email_body = email_body + str(plant[0]) + ' in ' + str(plant[1]) + ' days\n'
+
+    else:
+        print("Pattern not recognized - deleting email!")
+        exit_code = 1
     
-    plant_functions.send_email(email_subject,email_body,row)
+    if exit_code == 0:
+        plant_functions.send_email(email_subject,email_body,row)
 
     conn.close()
