@@ -51,7 +51,7 @@ def send_pic(text):
     	email_body = (f"""{plant_name} (Latin name: {latin_name}).
 It should be watered every {schedule_in_days} days. 
 It has been {days_since_last_water} days since it was last watered.
-Its current {need_water}.
+It currently {need_water}.
 Here is a picture:""")
     	print ('Sending email with ' + str(plant) + ' pic attached')
     	plant_functions.send_email('You inquired about:',email_body,row=None,file_location=pic_path)
