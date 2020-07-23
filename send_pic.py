@@ -38,7 +38,10 @@ def send_pic(text):
     plant_name                  = str(output.get(plant)[1])
     schedule_in_days            = str(output.get(plant)[2])
     last_watered                = str(output.get(plant)[3])
-    days_since_last_water       = str(output.get(plant)[4])
+    if output.get(plant)[4] == 1:
+        days_since_last_water = str(output.get(plant)[4]) + ' day'
+    else:
+        days_since_last_water = str(output.get(plant)[4]) + ' days'
     if output.get(plant)[5] == 0:
     	need_water = 'does not need water'
     elif output.get(plant)[5] == 1:
@@ -50,7 +53,7 @@ def send_pic(text):
     if os.path.isfile(pic_path):
     	email_body = (f"""{plant_name} (Latin name: {latin_name}).
 It should be watered every {schedule_in_days} days. 
-It has been {days_since_last_water} days since it was last watered.
+It has been {days_since_last_water} since it was last watered.
 It currently {need_water}.
 Here is a picture:""")
     	print ('Sending email with ' + str(plant) + ' pic attached')
