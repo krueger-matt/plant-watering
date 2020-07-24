@@ -34,6 +34,9 @@ def send_pic(text):
 
     pic_path = './pics/' + str(plant) + '.jpg'
 
+    if os.path.isfile(pic_path) is False:
+        pic_path = './pics/' + str(plant).replace(" ", "_") + '.jpg'
+
     id                          = str(output.get(plant)[0])
     plant_name                  = str(output.get(plant)[1])
     schedule_in_days            = str(output.get(plant)[2])

@@ -114,6 +114,8 @@ def email_parse(detach_dir,response_part,directory_name):
 	if filePath == './attachments/text_1.txt':
 		start_text = text.find(':') + 2
 		plant_name = text[start_text:].strip()
+		# File names need to use underscores not spaces so do a replace
+		plant_name = plant_name.replace(" ", "_")
 
 	if os.path.isfile(imagePath):
 		print ('./pics/' + plant_name.strip() + '.jpg')
