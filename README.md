@@ -50,8 +50,10 @@ Note that to have Gmail send a message to a phone number, you need to format it 
   * Check status of one plant by texting "plant_name status"
     * Example: Lemon Tree status
   * Check status of all plants by texting "All status"
-  * Confirm a plant has been watered by texting "plant_name watered"
+  * Confirm a plant has been watered by texting "plant_name watered" or by texting the plant_id integer
     * Example: Lemon Tree watered
+    * Example: 2
+      * This would confirm the plant with ID = 2 has been watered
     * Note: You can only water a plant that has indicated it needs to be watered
   * Get a picture of a plant texted to you by texting "Request Pic: plant_name"
     * Example: Request Pic: Palm Tree
