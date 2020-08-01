@@ -15,13 +15,14 @@ def send_text():
     # Add plants to output list if they need water. Send list of all plants in one email with this list
     output = []
 
-    # Checks which plants have a need_water flag set to 1 and then sends one text per plant that needs water
+    # Checks which plants have a need_water flag set to 1, an ignore flag set to 0, and then sends one text with
+    # a list of plant IDs and plant names that need to be watered
     conn = sqlite3.connect(config.DB_NAME)
-    cursor = conn.execute("SELECT plant_name FROM watering_schedule WHERE need_water = 1 AND ignore = 0")
+    cursor = conn.execute("SELECT id, plant_name FROM watering_schedule WHERE need_water = 1 AND ignore = 0")
 
     # Add items to dictionary
     for row in cursor:
-        output.append(row[0])
+        output.append(str(row[0]) + ': ' + row[1])
 
     if len(output) > 0:
         print (output)

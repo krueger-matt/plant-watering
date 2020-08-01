@@ -27,11 +27,14 @@ def attachments_dir(directory_name):
 
 
 
-def send_email(email_subject,email_body,row=None,file_location=None):
+def send_email(email_subject,email_body,row=None,file_location=None,send_to=None):
 
 	msg = MIMEMultipart()
 	msg['From'] =  config.FROM_EMAIL
-	msg['To'] = config.TO
+	if send_to is None:
+		msg['To'] = config.TO
+	else:
+		msg['To'] = send_to
 	msg['Subject'] = email_subject
 
 	msg.attach(MIMEText(email_body, 'plain'))
@@ -142,6 +145,8 @@ def email_parse(detach_dir,response_part,directory_name):
 		checker = 'update schedule'
 	elif text.lower().startswith('help'):
 		checker = 'help'
+	elif isinstance(int(text), int) is True:
+		checker = 'simple water'
 	else:
 		checker = -1
 

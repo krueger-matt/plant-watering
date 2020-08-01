@@ -22,6 +22,7 @@ import add_pic
 import send_pic
 import update_schedule
 import get_commands
+import plant_watered_alt
 
 def email_handler():
 
@@ -61,7 +62,7 @@ def email_handler():
 
 						if checker == 'watered':
 							plant_watered.plant_watered(text,email_from)
-							plant_functions.delete_emails(id_list,i,mail)							
+							plant_functions.delete_emails(id_list,i,mail)
 						elif checker == 'status':
 							check_status.check_status(text)
 							plant_functions.delete_emails(id_list,i,mail)
@@ -75,13 +76,16 @@ def email_handler():
 							add_pic.add_pic(plant_name)
 							plant_functions.delete_emails(id_list,i,mail)
 						elif checker == 'request pic':
-							send_pic.send_pic(text)
+							send_pic.send_pic(text, email_from)
 							plant_functions.delete_emails(id_list,i,mail)
 						elif checker == 'update schedule':
 							update_schedule.update_schedule(text)
 							plant_functions.delete_emails(id_list,i,mail)
 						elif checker == 'help':
 							get_commands.help(text)
+							plant_functions.delete_emails(id_list,i,mail)
+						elif checker == 'simple water':
+							plant_watered_alt.plant_watered(text,email_from)
 							plant_functions.delete_emails(id_list,i,mail)
 						else:
 							print ("No emails in inbox match the patterns accepted.")
